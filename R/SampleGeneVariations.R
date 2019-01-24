@@ -23,7 +23,7 @@ SampleGeneVariations <- function(disease, output_directory, genes_variation){
   else {
 
     # Read a given vcf file
-    vcf_file <- system.file("extdata", "vcf_input.vcf", package = "omicsimulator")
+    vcf_file <- system.file("extdata", "vcf_input.vcf", package = "omicsimulator2.0")
     vcf <- vcfR::read.vcfR(vcf_file, verbose = FALSE)
 
     # Choose the size of variants and samples
