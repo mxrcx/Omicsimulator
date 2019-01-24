@@ -117,6 +117,28 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   ##########################################################################################################
 
 
+  cat("Create Correlation Matrices:\n")
+
+  # Correlation Matrix
+  cor_normal <- cor(tcga_matrix_normal, method = "pearson", use = "complete.obs")
+  cor_tumor <- cor(tcga_matrix_tumor, method = "pearson", use = "complete.obs")
+  cor_simulated <- cor(simulated_matrix, method = "pearson", use = "complete.obs")
+
+  print(round(cor_normal, 3))
+  print(round(cor_tumor, 3))
+  print(round(cor_simulated, 3))
+
+  if(!require(Hmisc)){install.packages("Hmisc")}
+  rcorr_simulated <- Hmisc::rcorr(simulated_matrix)
+
+  print(rcorr_simulated)
+
+  cat("DONE. \n")
+
+
+  ##########################################################################################################
+
+
   # Combine top differentially expressed genes
   top_DEG <- unique(c(top_DEG_simulated, top_DEG_real))
   cat((((top_DEG_number * 2) - length(top_DEG)) * 100) / top_DEG_number, " % correspondence in top expresses genes. (", (top_DEG_number * 2) - length(top_DEG), " overlapping genes)\n")

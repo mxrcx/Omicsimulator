@@ -24,6 +24,8 @@ LoadTCGAMatrix <- function(disease, sample_type, sample_number){
 
       cat("Loaded from save file.\n")
 
+      tcga_matrix <- tcga_matrix[, 1:sample_number]
+
       return(tcga_matrix)
 
     }
