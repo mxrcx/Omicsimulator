@@ -9,6 +9,7 @@
 CheckDependencies <- function(){
 
   if(!require(hash)){install.packages("hash")}
+  if(!require(jsonlite)){install.packages("jsonlite")}
   if(!require(httr)){install.packages("httr")}
   if(!require(R.utils)){install.packages("R.utils")}
   if(!require(vcfR)){install.packages("vcfR")}

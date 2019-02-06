@@ -22,6 +22,11 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   # Check for dependencies
   CheckDependencies()
 
+  # Set default disease
+  if(missing(disease)){
+    disease <- "Breast cancer"
+  }
+
   # Set output directory
   if(missing(output_directory)) {
     output_directory <- "../output"
@@ -31,11 +36,6 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   }
   if(!file.exists(file.path(output_directory, disease))){
     dir.create(file.path(output_directory, disease))
-  }
-
-  # Set default disease
-  if(missing(disease)){
-    disease <- "Breast cancer"
   }
 
   # Create cache directory
@@ -88,6 +88,37 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   ##########################################################################################################
 
 
+  # Access OmniPath REST style API and download data
+  base <- "http://omnipathdb.org/"
+  query_type <- "interactions/"
+  number <- "P00533/"
+  query_end <- "?fields=sources&fields=references"
+  format <- ""
+
+  get_table <- httr::GET(url = paste(base, query_type, number, query_end, format, sep=""))
+  result <- httr::content(get_table, "parsed")
+  print(result)
+
+
+  result2 <- httr::GET("http://omnipathdb.org/interactions/P00533,O15117,Q96FE5?format=json")
+  result2 <- httr::content(result2, "parsed")
+  print(result2)
+
+  result3 <- httr::GET("http://omnipathdb.org/interactions?format=json")
+  result3 <- httr::content(result3, as="text")
+  interaction_table <- jsonlite::fromJSON(result3)
+
+  print(interaction_table)
+
+
+  # Extract entries
+  #assign("application/gzip", function(x, ...) {f <- tempfile(); writeBin(x,f);untar(f);readLines(f, warn = FALSE)},envir = httr:::parsers)
+  #table <- httr::content(get_table, "parsed")
+
+
+  ##########################################################################################################
+
+
   # Load TCGA Matrix of specified TUMOR data
   sample_type <- "Primary solid Tumor"
   tcga_matrix_tumor <- LoadTCGAMatrix(disease, sample_type, sample_number)
@@ -95,6 +126,10 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   # Load TCGA Matrix of NORMAL tissue data
   sample_type <- "Solid Tissue Normal"
   tcga_matrix_normal <- LoadTCGAMatrix(disease, sample_type, sample_number)
+
+  cor_normal <- cor(t(tcga_matrix_normal), method = "pearson", use = "complete.obs")
+  print(round(cor_normal, 3))
+
 
   # Do differential expression analysis (NORMAL + TUMOR)
   DEA_normal_tumor <- DEA(disease, sample_number, output_directory, tcga_matrix_normal, tcga_matrix_tumor, "NT_PT")
@@ -120,9 +155,9 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   cat("Create Correlation Matrices:\n")
 
   # Correlation Matrix
-  cor_normal <- cor(tcga_matrix_normal, method = "pearson", use = "complete.obs")
-  cor_tumor <- cor(tcga_matrix_tumor, method = "pearson", use = "complete.obs")
-  cor_simulated <- cor(simulated_matrix, method = "pearson", use = "complete.obs")
+  cor_normal <- cor(t(tcga_matrix_normal), method = "pearson", use = "complete.obs")
+  cor_tumor <- cor(t(tcga_matrix_tumor), method = "pearson", use = "complete.obs")
+  cor_simulated <- cor(t(simulated_matrix), method = "pearson", use = "complete.obs")
 
   print(round(cor_normal, 3))
   print(round(cor_tumor, 3))
