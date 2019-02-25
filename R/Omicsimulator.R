@@ -127,7 +127,12 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   sample_type <- "Solid Tissue Normal"
   tcga_matrix_normal <- LoadTCGAMatrix(disease, sample_type, sample_number)
 
-  cor_normal <- cor(t(tcga_matrix_normal), method = "pearson", use = "complete.obs")
+  print(nrow(tcga_matrix_normal))
+  print(ncol(tcga_matrix_normal))
+
+  cor_normal <- propagate::bigcor(t(tcga_matrix_normal[1:40000, ]), size = 10000, fun = "cor")
+  typeof(cor_normal)
+  print(cor_normal)
   print(round(cor_normal, 3))
 
 
