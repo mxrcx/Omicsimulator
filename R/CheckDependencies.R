@@ -59,4 +59,8 @@ CheckDependencies <- function(){
     }
     BiocManager::install("hpar", version = "3.8")
   }
+  if(!require("rols")){
+    source("http://www.bioconductor.org/biocLite.R")
+    biocLite("rols")
+  }
 }
