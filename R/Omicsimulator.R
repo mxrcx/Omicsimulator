@@ -88,37 +88,6 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   ##########################################################################################################
 
 
-  # Access OmniPath REST style API and download data
-  base <- "http://omnipathdb.org/"
-  query_type <- "interactions/"
-  number <- "P00533/"
-  query_end <- "?fields=sources&fields=references"
-  format <- ""
-
-  get_table <- httr::GET(url = paste(base, query_type, number, query_end, format, sep=""))
-  result <- httr::content(get_table, "parsed")
-  print(result)
-
-
-  result2 <- httr::GET("http://omnipathdb.org/interactions/P00533,O15117,Q96FE5?format=json")
-  result2 <- httr::content(result2, "parsed")
-  print(result2)
-
-  result3 <- httr::GET("http://omnipathdb.org/interactions?format=json")
-  result3 <- httr::content(result3, as="text")
-  interaction_table <- jsonlite::fromJSON(result3)
-
-  print(interaction_table)
-
-
-  # Extract entries
-  #assign("application/gzip", function(x, ...) {f <- tempfile(); writeBin(x,f);untar(f);readLines(f, warn = FALSE)},envir = httr:::parsers)
-  #table <- httr::content(get_table, "parsed")
-
-
-  ##########################################################################################################
-
-
   # Load TCGA Matrix of specified TUMOR data
   sample_type <- "Primary solid Tumor"
   tcga_matrix_tumor <- LoadTCGAMatrix(disease, sample_type, sample_number)
@@ -127,14 +96,9 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   sample_type <- "Solid Tissue Normal"
   tcga_matrix_normal <- LoadTCGAMatrix(disease, sample_type, sample_number)
 
-  print(nrow(tcga_matrix_normal))
-  print(ncol(tcga_matrix_normal))
 
-  cor_normal <- propagate::bigcor(t(tcga_matrix_normal[1:40000, ]), size = 10000, fun = "cor")
-  typeof(cor_normal)
-  print(cor_normal)
-  print(round(cor_normal, 3))
-
+  #cor_normal <- propagate::bigcor(t(tcga_matrix_normal[1:40000, ]), size = 10000, fun = "cor")
+  #print(cor_normal)
 
   # Do differential expression analysis (NORMAL + TUMOR)
   DEA_normal_tumor <- DEA(disease, sample_number, output_directory, tcga_matrix_normal, tcga_matrix_tumor, "NT_PT")
@@ -145,9 +109,12 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
 
 
   # Simulate tumor
-  genes_dictionary_from_dea <- hash::hash(top_DEG_real, rep(1, top_DEG_number))
-  simulated_matrix <- SimulateCounts(tcga_matrix_normal, genes_dictionary_from_dea)
-  #simulated_matrix <- SimulateCounts(tcga_matrix_normal, genes_dictionary)
+  efo_code <- "EFO_0000305"
+  top_genes <- GetTopGenesFromOpentargets(efo_code, top_DEG_number)
+
+  genes_dictionary_from_opentargets <- hash::hash(top_genes, rep(1, top_DEG_number))
+
+  simulated_matrix <- SimulateCounts(tcga_matrix_normal, genes_dictionary_from_opentargets)
 
   # Do differential expression analysis (NORMAL + SIMULATED)
   DEA_normal_simulated <- DEA(disease, sample_number, output_directory, tcga_matrix_normal, simulated_matrix, "NT_Simulated")

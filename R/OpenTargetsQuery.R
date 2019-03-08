@@ -54,4 +54,12 @@ res_list <- jsonlite::fromJSON(res_json)
 
 res_data <- res_list$data
 
-print(res_data)
+res_selection <- cbind.data.frame(res_data$target$gene_info$symbol, res_data$association_score$overall)
+
+# 4. Get top genes
+
+treshold <- 100
+
+top_genes <- res_selection[1:treshold, 1]
+
+print(top_genes)
