@@ -120,16 +120,29 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   ##########################################################################################################
 
 
-  cat("Create Correlation Matrices:\n")
+  cat("Load Correlation Matrix:\n")
 
   # Build correlation matrix to find coexpressed genes
-  cor_normal <- propagate::bigcor(t(tcga_matrix_normal[1:40000, ]), size = 10000, fun = "cor")
-  #cor_normal <- propagate::bigcor(t(tcga_matrix_normal), size = 10000, fun = "cor")
-  print(cor_normal)
 
-  cat("DONE. \n")
+  if(!file.exists(file.path("cache", disease, paste("cor_normal", disease, "_sample=", sample_number, ".rds", sep="")))){
 
-  cat("Check for coexpresses genes: \n")
+    cat("--> Create Correlation Matrix...\n")
+
+    cor_normal <- propagate::bigcor(t(tcga_matrix_normal[1:40000, 1:sample_number]), size = 10000, fun = "cor")
+
+    # Save as RDS file in cache
+    saveRDS(cor_normal, file.path("cache", disease, paste("cor_normal", disease, "_sample=", sample_number, ".rds", sep="")))
+
+    cat("--> DONE. \n")
+  }
+  else{
+
+    cor_normal <- readRDS(file.path("cache", disease, paste("cor_normal", disease, "_sample=", sample_number, ".rds", sep="")))
+
+    cat("Loaded from save file.\n")
+  }
+
+  cat("Check for coexpressed genes: \n")
 
   # Find row numbers of top_DEG_real
   top_DEG_real_row_numbers <- NULL
