@@ -96,10 +96,6 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   sample_type <- "Solid Tissue Normal"
   tcga_matrix_normal <- LoadTCGAMatrix(disease, sample_type, sample_number)
 
-
-  #cor_normal <- propagate::bigcor(t(tcga_matrix_normal[1:40000, ]), size = 10000, fun = "cor")
-  #print(cor_normal)
-
   # Do differential expression analysis (NORMAL + TUMOR)
   DEA_normal_tumor <- DEA(disease, sample_number, output_directory, tcga_matrix_normal, tcga_matrix_tumor, "NT_PT")
   top_DEG_real <- TopDEG(DEA_normal_tumor, top_DEG_number)
@@ -126,19 +122,58 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
 
   cat("Create Correlation Matrices:\n")
 
-  # Correlation Matrix
-  cor_normal <- cor(t(tcga_matrix_normal), method = "pearson", use = "complete.obs")
-  cor_tumor <- cor(t(tcga_matrix_tumor), method = "pearson", use = "complete.obs")
-  cor_simulated <- cor(t(simulated_matrix), method = "pearson", use = "complete.obs")
+  # Build correlation matrix to find coexpressed genes
+  cor_normal <- propagate::bigcor(t(tcga_matrix_normal[1:40000, ]), size = 10000, fun = "cor")
+  #cor_normal <- propagate::bigcor(t(tcga_matrix_normal), size = 10000, fun = "cor")
+  print(cor_normal)
 
-  print(round(cor_normal, 3))
-  print(round(cor_tumor, 3))
-  print(round(cor_simulated, 3))
+  cat("DONE. \n")
 
-  if(!require(Hmisc)){install.packages("Hmisc")}
-  rcorr_simulated <- Hmisc::rcorr(simulated_matrix)
+  cat("Check for coexpresses genes: \n")
 
-  print(rcorr_simulated)
+  # Find row numbers of top_DEG_real
+  top_DEG_real_row_numbers <- NULL
+
+  for(element in top_DEG_real){
+    for(row_number in 1:nrow(tcga_matrix_normal)){
+      if(element == rownames(tcga_matrix_normal)[row_number]){
+        top_DEG_real_row_numbers <- c(top_DEG_real_row_numbers, row_number)
+        next
+      }
+    }
+  }
+
+  print(top_DEG_real_row_numbers)
+
+  # Check for coexpressed genes
+  coexpressed_genes_numbers <- NULL
+  for(row_number in top_DEG_real_row_numbers){
+    for(col_number in 1:ncol(cor_normal)){
+      cor_value <- cor_normal[row_number, col_number]
+      if(row_number != col_number){
+        if((!is.na(cor_value)) && (cor_value >= 0.75)){
+          if(!is.element(col_number, coexpressed_genes_numbers)){
+            coexpressed_genes_numbers <- c(coexpressed_genes_numbers, col_number)
+          }
+        }
+      }
+    }
+  }
+
+  print(coexpressed_genes_numbers)
+
+  # Get coexpressed genes symbol
+  coexpressed_genes <- NULL
+  for(element in coexpressed_genes_numbers){
+    for(row_number in 1:nrow(tcga_matrix_normal)){
+      if(element == row_number){
+        coexpressed_genes <- c(coexpressed_genes, rownames(tcga_matrix_normal)[row_number])
+        next
+      }
+    }
+  }
+
+  print(coexpressed_genes)
 
   cat("DONE. \n")
 

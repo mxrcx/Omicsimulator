@@ -9,7 +9,7 @@
 #' @examples
 SimulateCounts <- function(count_matrix, genes_dictionary){
 
-  cat("Simulate Counts:\n")
+  cat("Simulate Counts...")
 
   # Increase or decrease expression values, if necessary
   if(!is.null(genes_dictionary)){
@@ -18,8 +18,6 @@ SimulateCounts <- function(count_matrix, genes_dictionary){
 
       # Manipulate expression values
       if(rownames(count_matrix)[row] %in% ls(genes_dictionary)){
-
-        cat("\tProcess ", rownames(count_matrix)[row], " (", (row*100)/nrow(count_matrix), "% of expression values loaded)\n")
 
         # Calculate Standard Derivation for gene
         sd <- sd(count_matrix[row, 1:ncol(count_matrix)])
