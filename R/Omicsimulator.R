@@ -147,12 +147,12 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   # Find row numbers of top_DEG_real
   top_DEG_real_row_numbers <- NULL
 
-  for(element in top_DEG_real){
-    for(row_number in 1:nrow(tcga_matrix_normal)){
-      if(element == rownames(tcga_matrix_normal)[row_number]){
-        top_DEG_real_row_numbers <- c(top_DEG_real_row_numbers, row_number)
-        next
-      }
+  for(row_number in 1:nrow(tcga_matrix_normal[1:40000, 1:sample_number])){
+
+    if(is.element(rownames(tcga_matrix_normal)[row_number], top_DEG_real)){
+
+      top_DEG_real_row_numbers <- c(top_DEG_real_row_numbers, row_number)
+
     }
   }
 
@@ -160,29 +160,35 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
 
   # Check for coexpressed genes
   coexpressed_genes_numbers <- NULL
-  for(row_number in top_DEG_real_row_numbers){
-    for(col_number in 1:ncol(cor_normal)){
+
+  for(col_number in 1:ncol(cor_normal)){
+
+    for(row_number in top_DEG_real_row_numbers){
+
       cor_value <- cor_normal[row_number, col_number]
-      if(row_number != col_number){
-        if((!is.na(cor_value)) && (cor_value >= 0.75)){
-          if(!is.element(col_number, coexpressed_genes_numbers)){
-            coexpressed_genes_numbers <- c(coexpressed_genes_numbers, col_number)
-          }
-        }
+
+      if((!is.na(cor_value)) && (cor_value >= 0.8)){
+
+        coexpressed_genes_numbers <- c(coexpressed_genes_numbers, col_number)
+
       }
     }
   }
+
+  coexpressed_genes_numbers <- unique(coexpressed_genes_numbers)
 
   print(coexpressed_genes_numbers)
 
   # Get coexpressed genes symbol
   coexpressed_genes <- NULL
-  for(element in coexpressed_genes_numbers){
-    for(row_number in 1:nrow(tcga_matrix_normal)){
-      if(element == row_number){
-        coexpressed_genes <- c(coexpressed_genes, rownames(tcga_matrix_normal)[row_number])
-        next
-      }
+  rownames_tcga_matrix_normal <- rownames(tcga_matrix_normal)
+
+  for(row_number in 1:length(rownames_tcga_matrix_normal)){
+
+    if(is.element(row_number, coexpressed_genes_numbers)){
+
+      coexpressed_genes <- c(coexpressed_genes, rownames_tcga_matrix_normal[row_number])
+
     }
   }
 
@@ -190,6 +196,8 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
 
   cat("DONE. \n")
 
+  # Combine coexpressed genes with top_DEG_real
+  top_DEG_real <- unique(c(coexpressed_genes, top_DEG_real))
 
   ##########################################################################################################
 
@@ -235,12 +243,6 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
 
   print(p)
   ggsave(file.path(output_directory, disease, paste("Top_DGE_barplot_", disease, "_sample=", sample_number, ".png", sep="")), height = 50, width = 100, units = "cm", limitsize = FALSE)
-
-  # Merge both Matrices
-  # merged_matrix <- MergeMatrices(disease, sample_number, output_directory, simulated_matrix, tcga_matrix)
-
-  # Do DGE analysis
-  # DGE(disease, sample_number, output_directory, merged_matrix)
 
   # Generate VCF file
   if(!is.null(genes_variation)){

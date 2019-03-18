@@ -52,7 +52,7 @@ DEA <- function(disease, sample_number, output_directory, count_matrix_control, 
   dds_filtered = DESeq2::estimateSizeFactors(dds_filtered)
 
   # Get p-Values
-  prep <- DESeq2::DESeq(dds_filtered, fitType = 'local', quiet = TRUE)
+  prep <- DESeq2::DESeq(dds_filtered, fitType = 'local', quiet = TRUE, parallel = TRUE)
   res <- DESeq2::results(prep)
   print(res)
 
