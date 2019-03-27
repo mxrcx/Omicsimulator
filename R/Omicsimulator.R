@@ -16,7 +16,6 @@ function(input_file, disease, output_directory, sample_number, top_DEG_number)
 #'
 #' @examples
 #' Omicsimulator(disease = "Breast cancer", sample_number = 10, top_DEG_number = 20)
-#' @import fdrtool SimSeq hash stringi vcfR GenomicRanges biomaRt data.table
 Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directory, input_file){
 
   # Check for dependencies

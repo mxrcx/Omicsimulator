@@ -15,52 +15,43 @@ CheckDependencies <- function(){
   if(!require(httr)){install.packages("httr")}
   if(!require(R.utils)){install.packages("R.utils")}
   if(!require(vcfR)){install.packages("vcfR")}
-  if(!require(fdrtool)){install.packages("fdrtool")}
-  if(!require(SimSeq)){install.packages("SimSeq")}
   if(!require(stringi)){install.packages("stringi")}
   if(!require(devtools)){install.packages("devtools")}
   if(!require(pheatmap)){install.packages("pheatmap")}
-  if(!require(Rgraphviz)){
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("Rgraphviz")
-  }
   if(!require(CePa)){install.packages("CePa")}
+  if(!require(ggplot2)){install.packages("ggplot2")}
+
+  if (!requireNamespace("BiocManager", quietly = TRUE)){
+    install.packages("BiocManager")
+  }
+
+  if(!require(Rgraphviz)){
+    BiocManager::install("Rgraphviz")
+  }
   if(!require(biomaRt)){
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("biomaRt")
+    BiocManager::install("biomaRt")
   }
   if(!require(KEGGREST)){
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("KEGGREST")
+    BiocManager::install("KEGGREST")
   }
   if(!require(KEGGgraph)){
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("KEGGgraph")
+    BiocManager::install("KEGGgraph")
   }
   if(!require(TCGAbiolinks)){
-    #source("https://bioconductor.org/biocLite.R")
-    #biocLite("TCGAbiolinks")
-    devtools::install_github(repo = "BioinformaticsFMRP/TCGAbiolinks")
+    BiocManager::install("TCGAbiolinks")
+    #devtools::install_github(repo = "BioinformaticsFMRP/TCGAbiolinks")
   }
   if(!require(DESeq2)){
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("DESeq2")
+    BiocManager::install("DESeq2")
   }
   if(!require(SummarizedExperiment)){
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("SummarizedExperiment")
+    BiocManager::install("SummarizedExperiment")
   }
-  if(!require(ggplot2)){
-    install.packages("ggplot2")
-  }
+
   if(!require("hpar")){
-    if (!requireNamespace("BiocManager", quietly = TRUE)){
-      install.packages("BiocManager")
-    }
-    BiocManager::install("hpar", version = "3.8")
+    BiocManager::install("hpar")
   }
   if(!require("rols")){
-    source("http://www.bioconductor.org/biocLite.R")
-    biocLite("rols")
+    BiocManager::install("rols")
   }
 }
