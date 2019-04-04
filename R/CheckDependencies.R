@@ -20,6 +20,7 @@ CheckDependencies <- function(){
   if(!require(pheatmap)){install.packages("pheatmap")}
   if(!require(CePa)){install.packages("CePa")}
   if(!require(ggplot2)){install.packages("ggplot2")}
+  if(!require(functional)){install.packages("functional")}
 
   if (!requireNamespace("BiocManager", quietly = TRUE)){
     install.packages("BiocManager")
