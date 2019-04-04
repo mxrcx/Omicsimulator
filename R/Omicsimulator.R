@@ -104,16 +104,16 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
 
 
   # Simulate tumor
-  #efo_code <- "EFO_0000305"
-  #top_genes <- GetTopGenesFromOpentargets(efo_code, top_DEG_number)
+  efo_code <- "EFO_0000305"
+  top_genes <- GetTopGenesFromOpentargets(efo_code, top_DEG_number)
 
-  #genes_dictionary_from_opentargets <- hash::hash(top_genes, rep(1, top_DEG_number))
+  genes_dictionary_from_opentargets <- hash::hash(top_genes, rep(1, top_DEG_number))
 
-  #simulated_matrix <- SimulateCounts(tcga_matrix_normal, genes_dictionary_from_opentargets)
+  simulated_matrix <- SimulateCounts(tcga_matrix_normal, genes_dictionary_from_opentargets)
 
   # Do differential expression analysis (NORMAL + SIMULATED)
-  #DEA_normal_simulated <- DEA(disease, sample_number, output_directory, tcga_matrix_normal, simulated_matrix, "NT_Simulated")
-  #top_DEG_simulated <- TopDEG(DEA_normal_simulated, top_DEG_number)
+  DEA_normal_simulated <- DEA(disease, sample_number, output_directory, tcga_matrix_normal, simulated_matrix, "NT_Simulated")
+  top_DEG_simulated <- TopDEG(DEA_normal_simulated, top_DEG_number)
 
 
   ##########################################################################################################
@@ -141,7 +141,7 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
     cat("Loaded from save file.\n")
   }
 
-  cat("Check for coexpressed genes: \n")
+  cat("Check for coexpressed genes... \n")
 
   # Find row numbers of top_DEG_real
   top_DEG_real_row_numbers <- NULL
@@ -149,8 +149,6 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   for(row_number in 1:nrow(tcga_matrix_normal[1:40000, 1:sample_number])){
 
     if(is.element(rownames(tcga_matrix_normal)[row_number], top_DEG_real)){
-
-      cat("Part 1: ", row_number, " of ", nrow(tcga_matrix_normal[1:40000, 1:sample_number]), " \n")
 
       top_DEG_real_row_numbers <- c(top_DEG_real_row_numbers, row_number)
 
@@ -160,6 +158,7 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   print(top_DEG_real_row_numbers)
 
   # Check for coexpressed genes
+  cat("Get coexpressed genes numbers... \n")
   coexpressed_genes_numbers <- NULL
   threshold <- 0.8
 
@@ -175,8 +174,6 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   for(col_number in 1:ncol(cor_normal)){
 
     if(col_number %in% top_DEG_real_row_numbers){
-
-      cat("Part 2: ", col_number, " of ", ncol(cor_normal), " \n")
 
       for(row_number in 1:nrow(cor_normal)){
 
@@ -196,15 +193,14 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
 
   coexpressed_genes_numbers <- unique(coexpressed_genes_numbers)
 
-  print(coexpressed_genes_numbers)
 
   # Get coexpressed genes symbol
+  cat("Get coexpressed genes symbol... \n")
+
   coexpressed_genes <- NULL
   rownames_tcga_matrix_normal <- rownames(tcga_matrix_normal)
 
   for(row_number in 1:length(rownames_tcga_matrix_normal)){
-
-    cat("Part 3: ", row_number, " of ", length(rownames_tcga_matrix_normal), " \n")
 
     if(is.element(row_number, coexpressed_genes_numbers)){
 
@@ -213,7 +209,7 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
     }
   }
 
-  print(coexpressed_genes)
+  cat("Total coexpressed: ", length(coexpressed_genes), " \n")
 
   cat("DONE. \n")
 
