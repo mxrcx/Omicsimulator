@@ -127,7 +127,7 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
 
     cat("--> Create Correlation Matrix...\n")
 
-    cor_normal <- propagate::bigcor(t(tcga_matrix_normal[1:40000, 1:sample_number]), size = 10000, fun = "cor")
+    cor_normal <- propagate::bigcor(t(tcga_matrix_normal[1:40000, 1:sample_number]), size = 5000, fun = "cor")
 
     # Save as RDS file in cache
     saveRDS(cor_normal, file.path("cache", disease, paste("cor_normal", disease, "_sample=", sample_number, ".rds", sep="")))
@@ -155,7 +155,7 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
     }
   }
 
-  print(top_DEG_real_row_numbers)
+  cat("DONE. \n")
 
   # Check for coexpressed genes
   cat("Get coexpressed genes numbers... \n")
@@ -175,6 +175,8 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
 
     if(col_number %in% top_DEG_real_row_numbers){
 
+      cat("--- Nummer ", col_number, " --- \n")
+
       for(row_number in 1:nrow(cor_normal)){
 
         cor_value <- cor_normal[row_number, col_number]
@@ -185,10 +187,7 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
 
         }
       }
-      test <- cor_normal[, col_number]
-
     }
-
   }
 
   coexpressed_genes_numbers <- unique(coexpressed_genes_numbers)
@@ -218,15 +217,15 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
 
   ##########################################################################################################
 
-
   # Combine top differentially expressed genes
-  top_DEG <- unique(c(top_DEG_simulated, top_DEG_real))
-  cat((((top_DEG_number * 2) - length(top_DEG)) * 100) / top_DEG_number, " % correspondence in top expresses genes. (", (top_DEG_number * 2) - length(top_DEG), " overlapping genes)\n")
 
   overlapping_genes <- intersect(top_DEG_simulated, top_DEG_real)
   cat("Overlapping Genes: ", overlapping_genes, "\n")
 
-  influenced_genes <- ls(genes_dictionary)
+  top_DEG <- unique(c(top_DEG_simulated, top_DEG_real))
+  cat(((length(overlapping_genes) * 100)/length(top_DEG)), " % correspondence in top expresses genes. (", length(overlapping_genes), " overlapping genes)\n")
+
+  influenced_genes <- ls(genes_dictionary_from_opentargets)
   cat("Influenced genes in top genes: ", intersect(influenced_genes, top_DEG), "\n")
   cat("Influenced genes in Overlapping genes: ", intersect(influenced_genes, overlapping_genes), "\n")
 
@@ -271,3 +270,4 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
 
   cat("----------------------------- \nOMICSIMULATOR DONE. \n----------------------------- \n")
 }
+
