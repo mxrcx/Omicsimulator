@@ -2,9 +2,9 @@
 #'
 #' Gets gene range of every gene with variations, Searches for possible variations in this range, Writes vcf entry for first variation. Prints complete vcf file.
 #'
-#' @param disease
-#' @param output_directory
-#' @param genes_variation
+#' @param disease String; cancer name
+#' @param output_directory String; name of the output directory
+#' @param genes_variation List; genes with variations
 #'
 #' @return None
 #' @export

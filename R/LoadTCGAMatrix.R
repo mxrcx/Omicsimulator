@@ -1,8 +1,8 @@
 #' Load the TCGA Matrix of specified disease
 #'
-#' @param sample_number
-#' @param disease
-#' @param sample_type
+#' @param sample_number Integer; the number of samples which are simulated
+#' @param disease String; cancer name
+#' @param sample_type String; type of samples ('Primary solid Tumor' or 'Solid Tissue Normal')
 #'
 #' @return tcga_matrix
 #' @export

@@ -1,6 +1,6 @@
 #' Return top differentially expressed genes
 #'
-#' @param results_DEG Matrix; differentaial analysis results
+#' @param results_DEG Matrix; differential analysis results
 #' @param top_DEG_number Integer; number of top differential expressed genes
 #'
 #' @return

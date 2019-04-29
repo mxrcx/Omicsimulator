@@ -8,7 +8,7 @@
 #' @export
 #'
 #' @examples
-GenesFromPathway <- function(species, pID){
+GenesFromPathway <- function(species, pathway_id){
 
   # Default species value
   if(missing(species)) {

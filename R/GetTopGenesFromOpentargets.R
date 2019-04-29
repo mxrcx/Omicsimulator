@@ -2,6 +2,9 @@
 #'
 #' Access opentargets.org REST style API and download data
 #'
+#' @param efo_code String; coding of a specific cancer disease (e.g. Breast cancer: EFO_0000305)
+#' @param top_DEG_number Integer; number of top differential expressed genes
+#'
 #' @return top genes
 GetTopGenesFromOpentargets <- function(efo_code, top_DEG_number){
 

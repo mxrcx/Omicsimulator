@@ -4,7 +4,7 @@
 \alias{GenesFromPathway}
 \title{Get gene expression relations between genes from a specific pathway}
 \usage{
-GenesFromPathway(species, pID)
+GenesFromPathway(species, pathway_id)
 }
 \arguments{
 \item{species}{}

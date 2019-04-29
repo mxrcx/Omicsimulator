@@ -69,7 +69,7 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
     # Create input file from pathway [in case none is given as parameter]
     pathway_id <- GetPathwayID(disease)
 
-    GenesFromPathway(pID = pathway_id)
+    GenesFromPathway(pathway_id = pathway_id)
 
     cat("DONE. \n")
   }
