@@ -1,10 +1,11 @@
-#' DEA script
+#' Differential Expression Analysis using DESeq2
 #'
-#' @param disease
-#' @param sample_number
-#' @param output_directory
-#' @param count_matrix
-#' @param description
+#' @param disease String; name of a disease
+#' @param sample_number Integer; the number of samples which are simulated
+#' @param output_directory String; directory of the output files
+#' @param description String; indicating which two results are compared "NT_PT" or "NT_Simulated"
+#' @param count_matrix_control String; first Matrix with gene expression values, control group
+#' @param count_matrix_test String; second Matrix with gene expression values, test group
 #'
 #' @return
 #' @export

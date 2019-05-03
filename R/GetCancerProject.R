@@ -1,6 +1,6 @@
 #' Get Cancer project from TCGA
 #'
-#' @param disease
+#' @param disease String; name of a disease
 #'
 #' @return String; code for the TCGA Cancer Project
 #' @export

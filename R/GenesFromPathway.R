@@ -1,9 +1,9 @@
-#' Get gene expression relations between genes from a specific pathway
+#' Get gene expression relations between genes from a specific pathway KEGG pathway
 #'
 #' Get gene expression relations between genes from a KEGG pathway and write them in input file, using pathway specific kgml file of KEGGREST database
 #'
-#' @param pID String; id of the KEGG pathway
-#' @param species
+#' @param species String; describing the species which has this pathway
+#' @param pathway_id String; id of KEGG pathway
 #'
 #' @export
 #'
@@ -16,7 +16,7 @@ GenesFromPathway <- function(species, pathway_id){
   }
 
   # Get kgml file & create pathway
-  kgml.file <- KEGGREST::keggGet(paste(species, pID, sep=""), c("kgml"))
+  kgml.file <- KEGGREST::keggGet(paste(species, pathway_id, sep=""), c("kgml"))
   kgml.pathway <- KEGGgraph::parseKGML(kgml.file)
 
   # Create nodes and edges objects
