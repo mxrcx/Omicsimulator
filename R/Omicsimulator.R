@@ -5,18 +5,18 @@
 #' @return None
 #' @export
 Omicsimulator <-
-function(input_file, disease, output_directory, sample_number, top_DEG_number)
+function(disease, sample_number, top_DEG_number, output_directory, file_name)
 { ... }
 #'
-#' @param input_file String; txt file which contains gene symbols with variations and gene symbols whose read count is influenced
 #' @param disease String; name of a disease to get a KEGG pathway for
 #' @param output_directory String; directory of the output files
 #' @param top_DEG_number Integer; number of top differential expressed genes
 #' @param sample_number Integer; the number of samples which are simulated
+#' @param file_name String; name of the results output file
 #'
 #' @examples
 #' Omicsimulator(disease = "Breast cancer", sample_number = 10, top_DEG_number = 20)
-Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directory, input_file){
+Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directory, file_name){
 
   # Check for dependencies
   CheckDependencies()
@@ -35,6 +35,11 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   }
   if(!file.exists(file.path(output_directory, disease))){
     dir.create(file.path(output_directory, disease))
+  }
+
+  # Set file name
+  if(missing(file_name)){
+    file_name <- paste("omicsimulatorResults", disease, sample_number, top_DEG_number, sep = "_")
   }
 
   # Create cache directory
@@ -61,26 +66,25 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
 
   cat("----------------------------- \nOMICSIMULATOR START. \n----------------------------- \n")
 
-  # Create input file [in case none is given as parameter]
-  if(missing(input_file)) {
+  # Create input file from pathway
 
-    cat("Create input file from pathway...")
+  cat("Create input file from pathway...")
 
-    # Create input file from pathway [in case none is given as parameter]
-    pathway_id <- GetPathwayID(disease)
+  pathway_id <- GetPathwayID(disease)
+  GenesFromPathway(pathway_id = pathway_id)
 
-    GenesFromPathway(pathway_id = pathway_id)
+  cat("DONE. \n")
 
-    cat("DONE. \n")
-  }
 
   # Get input data
 
   cat("Read input file...")
+
   input_data <- GetInputData()
   genes_variation <- input_data$genes_variation
   genes_dictionary <- input_data$genes_dictionary
   print(ls(genes_dictionary))
+
   cat("DONE. \n")
 
 
@@ -268,6 +272,16 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
     cat("Note: There are no gene variations.\n")
   }
 
+
+  ##########################################################################################################
+
+
+
+  return(list(DEA_normal_tumor, DEA_normal_simulated))
+
+
   cat("----------------------------- \nOMICSIMULATOR DONE. \n----------------------------- \n")
+
+
 }
 
