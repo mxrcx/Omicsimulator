@@ -100,7 +100,7 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   tcga_matrix_normal <- LoadTCGAMatrix(disease, sample_type, sample_number)
 
   # Do differential expression analysis (NORMAL + TUMOR)
-  DEA_normal_tumor <- DEA(disease, sample_number, output_directory, tcga_matrix_normal, tcga_matrix_tumor, "NT_PT")
+  DEA_normal_tumor <- DEA(disease, sample_number, output_directory, tcga_matrix_normal, tcga_matrix_tumor, "NT_PT", file_name)
   top_DEG_real <- TopDEG(DEA_normal_tumor, top_DEG_number)
 
 
@@ -116,7 +116,7 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   simulated_matrix <- SimulateCounts(tcga_matrix_normal, genes_dictionary_from_opentargets)
 
   # Do differential expression analysis (NORMAL + SIMULATED)
-  DEA_normal_simulated <- DEA(disease, sample_number, output_directory, tcga_matrix_normal, simulated_matrix, "NT_Simulated")
+  DEA_normal_simulated <- DEA(disease, sample_number, output_directory, tcga_matrix_normal, simulated_matrix, "NT_Simulated", file_name)
   top_DEG_simulated <- TopDEG(DEA_normal_simulated, top_DEG_number)
 
 
@@ -262,11 +262,11 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
     theme_bw()
 
   print(p)
-  ggsave(file.path(output_directory, disease, paste("Top_DGE_barplot_", disease, "_sample=", sample_number, ".png", sep="")), height = 50, width = 100, units = "cm", limitsize = FALSE)
+  ggsave(file.path(output_directory, disease, paste("Top_DGE_barplot_", file_name, sep="")), height = 50, width = 100, units = "cm", limitsize = FALSE)
 
   # Generate VCF file
   if(!is.null(genes_variation)){
-    SampleGeneVariations(disease, output_directory, genes_variation)
+    SampleGeneVariations(disease, output_directory, genes_variation, file_name)
   }
   else{
     cat("Note: There are no gene variations.\n")
