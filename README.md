@@ -9,13 +9,13 @@ First install the package omicsimulator, then start the simulation with :
 The standard case, without any parameters, just has the parameters as followed: disease as "Breast cancer", sample_number as 10 and top_DEG_number as 100.
 
 These parameters are necessary to get specific results:
-* disease The name of a specific cancer disease which specifies a KEGG pathway, e.g. "Breast cancer". It is used to extract the gene expression relations for the input file.
-* sample_number The number of samples used for the simulation, e.g. "10".
-* top_DEG_number The number of top expressed genes used to compare the simulation results, e.g. "100".
+* `disease` The name of a specific cancer disease which specifies a KEGG pathway, e.g. "Breast cancer". It is used to extract the gene expression relations for the input file.
+* `sample_number` The number of samples used for the simulation, e.g. "10".
+* `top_DEG_number` The number of top expressed genes used to compare the simulation results, e.g. "100".
 
 You can add optional parameters as well:
-* output_directory (OPTIONAL) The directory of the output files, e.g. "specificPath/outputDirectory".
-* file_prefix (OPTIONAL) The file name prefix of the output files.
+* `output_directory (OPTIONAL)` The directory of the output files, e.g. "specificPath/outputDirectory".
+* `file_prefix (OPTIONAL)` The file name prefix of the output files.
 
 The return value is a list, containing the DEA results of normal-tumor and normal-simulated DEA. Both matrices contain the gene, the fold change and the p-value.
  
