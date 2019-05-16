@@ -227,8 +227,15 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   cat("Overlapping Genes: ", overlapping_genes, "\n")
 
   top_DEG <- unique(c(top_DEG_simulated, top_DEG_real))
-  cat(((length(overlapping_genes) * 100)/length(top_DEG)), " % correspondence in top expresses genes. (", length(overlapping_genes), " overlapping genes)\n")
+  correspondence <- (length(overlapping_genes) * 100)/length(top_DEG)
+  cat(correspondence, " % correspondence in top expresses genes. (", length(overlapping_genes), " overlapping genes)\n")
 
+  # Save correspondence to output file
+  correspondence_list <- list(correspondence, length(overlapping_genes), overlapping_genes)
+  write.table(correspondence_list, file.path(output_directory, disease, paste("Correspondence_", file_name, ".txt", sep="")), sep = "")
+
+
+  # Print influenced genes in top genes
   influenced_genes <- ls(genes_dictionary_from_opentargets)
   cat("Influenced genes in top genes: ", intersect(influenced_genes, top_DEG), "\n")
   cat("Influenced genes in Overlapping genes: ", intersect(influenced_genes, overlapping_genes), "\n")
