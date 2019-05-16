@@ -5,18 +5,18 @@
 #' @return None
 #' @export
 Omicsimulator <-
-function(disease, sample_number, top_DEG_number, output_directory, file_name)
+function(disease, sample_number, top_DEG_number, output_directory, file_prefix)
 { ... }
 #'
 #' @param disease String; name of a disease to get a KEGG pathway for
 #' @param output_directory String; directory of the output files
 #' @param top_DEG_number Integer; number of top differential expressed genes
 #' @param sample_number Integer; the number of samples which are simulated
-#' @param file_name String; name of the results output file
+#' @param file_prefix String; name of the results output file
 #'
 #' @examples
 #' Omicsimulator(disease = "Breast cancer", sample_number = 10, top_DEG_number = 20)
-Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directory, file_name){
+Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directory, file_prefix){
 
   # Check for dependencies
   CheckDependencies()
@@ -38,8 +38,8 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   }
 
   # Set file name
-  if(missing(file_name)){
-    file_name <- paste("omicsimulatorResults", disease, sample_number, top_DEG_number, sep = "_")
+  if(missing(file_prefix)){
+    file_prefix <- paste("omicsimulatorResults", disease, sample_number, top_DEG_number, sep = "_")
   }
 
   # Create cache directory
@@ -100,7 +100,7 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   tcga_matrix_normal <- LoadTCGAMatrix(disease, sample_type, sample_number)
 
   # Do differential expression analysis (NORMAL + TUMOR)
-  DEA_normal_tumor <- DEA(disease, sample_number, output_directory, tcga_matrix_normal, tcga_matrix_tumor, "NT_PT", file_name)
+  DEA_normal_tumor <- DEA(disease, sample_number, output_directory, tcga_matrix_normal, tcga_matrix_tumor, "NT_PT", file_prefix)
   top_DEG_real <- TopDEG(DEA_normal_tumor, top_DEG_number)
 
 
@@ -116,7 +116,7 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   simulated_matrix <- SimulateCounts(tcga_matrix_normal, genes_dictionary_from_opentargets)
 
   # Do differential expression analysis (NORMAL + SIMULATED)
-  DEA_normal_simulated <- DEA(disease, sample_number, output_directory, tcga_matrix_normal, simulated_matrix, "NT_Simulated", file_name)
+  DEA_normal_simulated <- DEA(disease, sample_number, output_directory, tcga_matrix_normal, simulated_matrix, "NT_Simulated", file_prefix)
   top_DEG_simulated <- TopDEG(DEA_normal_simulated, top_DEG_number)
 
 
@@ -232,7 +232,7 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
 
   # Save correspondence to output file
   correspondence_list <- list(correspondence, length(overlapping_genes), overlapping_genes)
-  write.table(correspondence_list, file.path(output_directory, disease, paste("Correspondence_", file_name, ".txt", sep="")), sep = "")
+  write.table(correspondence_list, file.path(output_directory, disease, paste(file_prefix, "_Correspondence.txt", sep="")), sep = "")
 
 
   # Print influenced genes in top genes
@@ -269,11 +269,11 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
     theme_bw()
 
   print(p)
-  ggsave(file.path(output_directory, disease, paste("Top_DGE_barplot_", file_name, sep="")), height = 50, width = 100, units = "cm", limitsize = FALSE)
+  ggsave(file.path(output_directory, disease, paste(file_prefix, "_TopDGE_Barplot", sep="")), height = 50, width = 100, units = "cm", limitsize = FALSE)
 
   # Generate VCF file
   if(!is.null(genes_variation)){
-    SampleGeneVariations(disease, output_directory, genes_variation, file_name)
+    SampleGeneVariations(disease, output_directory, genes_variation, file_prefix)
   }
   else{
     cat("Note: There are no gene variations.\n")

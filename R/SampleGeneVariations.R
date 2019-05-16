@@ -5,18 +5,18 @@
 #' @param disease String; cancer name
 #' @param output_directory String; name of the output directory
 #' @param genes_variation List; genes with variations
-#' @param file_name String; name of the results output file
+#' @param file_prefix String; name of the results output file
 #'
 #' @return None
 #' @export
 #'
 #' @examples
 #' SampleGeneVariations(genes.variation)
-SampleGeneVariations <- function(disease, output_directory, genes_variation, file_name){
+SampleGeneVariations <- function(disease, output_directory, genes_variation, file_prefix){
 
   cat("Calculate gene variations...")
 
-  if(file.exists(file.path(output_directory, disease, paste("gene_variations_", disease, ".vcf.gz", sep="")))){
+  if(file.exists(file.path(output_directory, disease, paste(file_prefix, "_GeneVariations.vcf.gz", sep="")))){
 
     cat("SAVE FILE ALREADY EXISTING. \n")
 
@@ -122,7 +122,7 @@ SampleGeneVariations <- function(disease, output_directory, genes_variation, fil
     vcf@fix <- data
 
     # Write manipulated vcf file
-    vcfR::write.vcf(vcf, file = file.path(output_directory, disease, paste("gene_variations_", file_name, ".vcf.gz", sep="")))
+    vcfR::write.vcf(vcf, file = file.path(output_directory, disease, paste(file_prefix, "_GeneVariations.vcf.gz", sep="")))
 
     cat("\nDONE. \n")
   }

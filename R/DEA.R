@@ -6,13 +6,13 @@
 #' @param description String; indicating which two results are compared "NT_PT" or "NT_Simulated"
 #' @param count_matrix_control String; first Matrix with gene expression values, control group
 #' @param count_matrix_test String; second Matrix with gene expression values, test group
-#' @param file_name String; name of the results output file
+#' @param file_prefix String; name of the results output file
 #'
 #' @return
 #' @export
 #'
 #' @examples
-DEA <- function(disease, sample_number, output_directory, count_matrix_control, count_matrix_test, description, file_name){
+DEA <- function(disease, sample_number, output_directory, count_matrix_control, count_matrix_test, description, file_prefix){
 
   cat("Do Differential Expression Analysis: \n")
 
@@ -65,8 +65,8 @@ DEA <- function(disease, sample_number, output_directory, count_matrix_control, 
       dir.create(file.path(output_directory, disease, description))
     }
     count_matrix <- cbind(count_matrix, res$pvalue)
-    write.table(count_matrix, file = file.path(output_directory, disease, description, paste(description, "_count_matrix_", file_name, ".csv", sep="")), quote=FALSE, sep =";", row.names = TRUE, col.names = NA)
-    write.table(res, file = file.path(output_directory, disease, description, paste(description, "_DGE_results_", file_name, ".csv", sep="")), quote=FALSE, sep =";", row.names = TRUE, col.names = NA)
+    write.table(count_matrix, file = file.path(output_directory, disease, description, paste(file_prefix, "_CountMatrix_", description, ".csv", sep="")), quote=FALSE, sep =";", row.names = TRUE, col.names = NA)
+    write.table(res, file = file.path(output_directory, disease, description, paste(file_prefix, "_DGE_Results_", description, ".csv", sep="")), quote=FALSE, sep =";", row.names = TRUE, col.names = NA)
 
     # log-Transforamtion (vst instead of rlog, because it is faster (vst needs >= 1000 rows))
     #dds_transformed = DESeq2::varianceStabilizingTransformation(dds_filtered, fitType = 'local')
