@@ -6,13 +6,19 @@ First install the package omicsimulator, then start the simulation with :
  
 `Omicsimulator()`
  
-You can add additional parameters, which are all optional, to optimize results:
+The standard case, without any parameters, just has the parameters as followed: disease as "Breast cancer", sample_number as 10 and top_DEG_number as 100.
 
-* input.file (OPTIONAL) The location of a special formatted input file, containing gene expression relations, e.g. "inputDirectory/input.txt". Usally, the program creates this file automatically, using a KEGG pathway, so just specify the disease parameter.
-* disease (OPTIONAL) The name of a specific cancer disease which specifies a KEGG pathway, e.g. "Breast cancer". It is used to extract the gene expression relations for the input file.
-* output.directory (OPTIONAL) The directory of the output files, e.g. "specificPath/outputDirectory".
-* sample.number (OPTIONAL) The number of samples used for the simulation, e.g. "10".
+These parameters are necessary to get specific results:
+* disease The name of a specific cancer disease which specifies a KEGG pathway, e.g. "Breast cancer". It is used to extract the gene expression relations for the input file.
+* sample_number The number of samples used for the simulation, e.g. "10".
+* top_DEG_number The number of top expressed genes used to compare the simulation results, e.g. "100".
+
+You can add optional parameters as well:
+* output_directory (OPTIONAL) The directory of the output files, e.g. "specificPath/outputDirectory".
+* file_prefix (OPTIONAL) The file name prefix of the output files.
+
+The return value is a list, containing the DEA results of normal-tumor and normal-simulated DEA. Both matrices contain the gene, the fold change and the p-value.
  
-Example call:
+## Example call:
 
-`Omicsimulator(disease="Breast cancer")`
+`Omicsimulator(disease = disease, sample_number = 10, top_DEG_number = 1000, output_directory = "../output", file_prefix = "omicsimulatorResults_Breast cancer_10_1000")`
