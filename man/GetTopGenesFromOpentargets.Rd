@@ -6,6 +6,11 @@
 \usage{
 GetTopGenesFromOpentargets(efo_code, top_DEG_number)
 }
+\arguments{
+\item{efo_code}{String; coding of a specific cancer disease (e.g. Breast cancer: EFO_0000305)}
+
+\item{top_DEG_number}{Integer; number of top differential expressed genes}
+}
 \value{
 top genes
 }

@@ -7,5 +7,5 @@
 CheckDependencies()
 }
 \description{
-Check Dependecies needed for this project (install if neccessary + load dependencies)
+Check all dependencies needed for this project (install if necessary + load dependencies)
 }

@@ -7,7 +7,7 @@
 TopDEG(results_DEG, top_DEG_number)
 }
 \arguments{
-\item{results_DEG}{Matrix; differentaial analysis results}
+\item{results_DEG}{Matrix; differential analysis results}
 
 \item{top_DEG_number}{Integer; number of top differential expressed genes}
 }

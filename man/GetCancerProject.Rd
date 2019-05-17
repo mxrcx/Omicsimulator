@@ -7,7 +7,7 @@
 GetCancerProject(disease)
 }
 \arguments{
-\item{disease}{}
+\item{disease}{String; name of a disease}
 }
 \value{
 String; code for the TCGA Cancer Project

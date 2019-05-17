@@ -5,10 +5,10 @@
 \title{Main function which calls all relevant to simulate the influence of variations on gene expression}
 \usage{
 Omicsimulator(disease, sample_number, top_DEG_number, output_directory,
-  input_file)
+  file_prefix)
 
 Omicsimulator(disease, sample_number, top_DEG_number, output_directory,
-  input_file)
+  file_prefix)
 }
 \arguments{
 \item{disease}{String; name of a disease to get a KEGG pathway for}
@@ -19,14 +19,14 @@ Omicsimulator(disease, sample_number, top_DEG_number, output_directory,
 
 \item{output_directory}{String; directory of the output files}
 
-\item{input_file}{String; txt file which contains gene symbols with variations and gene symbols whose read count is influenced}
+\item{file_prefix}{String; name of the results output file}
 }
 \value{
-None
+List; List containing the DEA results of both normal-tumor and normal-simulated
 }
 \description{
 Main function which calls all relevant to simulate the influence of variations on gene expression
 }
 \examples{
-Omicsimulator(disease = "Breast cancer", sample_number = 10, top_DEG_number = 20)
+Omicsimulator(disease = "Breast cancer", sample_number = 10, top_DEG_number = 100)
 }

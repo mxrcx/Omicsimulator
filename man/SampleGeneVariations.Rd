@@ -4,10 +4,17 @@
 \alias{SampleGeneVariations}
 \title{Generates a vcf file based on a given list of gene symbols}
 \usage{
-SampleGeneVariations(disease, output_directory, genes_variation)
+SampleGeneVariations(disease, output_directory, genes_variation,
+  file_prefix)
 }
 \arguments{
-\item{genes_variation}{}
+\item{disease}{String; cancer name}
+
+\item{output_directory}{String; name of the output directory}
+
+\item{genes_variation}{List; genes with variations}
+
+\item{file_prefix}{String; name of the results output file}
 }
 \value{
 None

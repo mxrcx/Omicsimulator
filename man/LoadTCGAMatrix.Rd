@@ -7,7 +7,11 @@
 LoadTCGAMatrix(disease, sample_type, sample_number)
 }
 \arguments{
-\item{sample_type}{}
+\item{disease}{String; cancer name}
+
+\item{sample_type}{String; type of samples ('Primary solid Tumor' or 'Solid Tissue Normal')}
+
+\item{sample_number}{Integer; the number of samples which are simulated}
 }
 \value{
 tcga_matrix

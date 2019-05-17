@@ -2,14 +2,14 @@
 % Please edit documentation in R/GenesFromPathway.R
 \name{GenesFromPathway}
 \alias{GenesFromPathway}
-\title{Get gene expression relations between genes from a specific pathway}
+\title{Get gene expression relations between genes from a specific pathway KEGG pathway}
 \usage{
 GenesFromPathway(species, pathway_id)
 }
 \arguments{
-\item{species}{}
+\item{species}{String; describing the species which has this pathway}
 
-\item{pID}{String; id of the KEGG pathway}
+\item{pathway_id}{String; id of KEGG pathway}
 }
 \description{
 Get gene expression relations between genes from a KEGG pathway and write them in input file, using pathway specific kgml file of KEGGREST database

@@ -2,7 +2,7 @@
 #'
 #' Main function which calls all relevant to simulate the influence of variations on gene expression
 #'
-#' @return None
+#' @return List; List containing the DEA results of both normal-tumor and normal-simulated
 #' @export
 Omicsimulator <-
 function(disease, sample_number, top_DEG_number, output_directory, file_prefix)
@@ -15,7 +15,7 @@ function(disease, sample_number, top_DEG_number, output_directory, file_prefix)
 #' @param file_prefix String; name of the results output file
 #'
 #' @examples
-#' Omicsimulator(disease = "Breast cancer", sample_number = 10, top_DEG_number = 20)
+#' Omicsimulator(disease = "Breast cancer", sample_number = 10, top_DEG_number = 100)
 Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directory, file_prefix){
 
   # Check for dependencies

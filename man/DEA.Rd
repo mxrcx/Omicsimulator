@@ -2,14 +2,26 @@
 % Please edit documentation in R/DEA.R
 \name{DEA}
 \alias{DEA}
-\title{DEA script}
+\title{Differential Expression Analysis using DESeq2}
 \usage{
 DEA(disease, sample_number, output_directory, count_matrix_control,
-  count_matrix_test, description)
+  count_matrix_test, description, file_prefix)
 }
 \arguments{
-\item{description}{}
+\item{disease}{String; name of a disease}
+
+\item{sample_number}{Integer; the number of samples which are simulated}
+
+\item{output_directory}{String; directory of the output files}
+
+\item{count_matrix_control}{String; first Matrix with gene expression values, control group}
+
+\item{count_matrix_test}{String; second Matrix with gene expression values, test group}
+
+\item{description}{String; indicating which two results are compared "NT_PT" or "NT_Simulated"}
+
+\item{file_prefix}{String; name of the results output file}
 }
 \description{
-DEA script
+Differential Expression Analysis using DESeq2
 }
