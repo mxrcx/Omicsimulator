@@ -8,6 +8,7 @@
 #' @examples
 CheckDependencies <- function(){
 
+  if(!require(tictoc)){install.packages("tictoc")}
   if(!require(hash)){install.packages("hash")}
   if(!require(jsonlite)){install.packages("jsonlite")}
   if(!require(rlist)){install.packages("rlist")}

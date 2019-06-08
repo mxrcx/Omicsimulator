@@ -21,6 +21,9 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   # Check for dependencies
   CheckDependencies()
 
+  # Start TOTAL timer
+  tictoc::tic("TOTAL")
+
   # Set default disease
   if(missing(disease)){
     disease <- "Breast cancer"
@@ -166,33 +169,32 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   coexpressed_genes_numbers <- NULL
   threshold <- 0.8
 
-  # Set diagonal to 0
-  # diag(cor_normal) <- 0
 
-  # Create funktion to filter values by threshold
-  # threshold_function <- apply(abs(cor_normal) >= threshold, 1, any)
+  # Get only relevant rows
+  cor_coexpressed <- cor_normal[top_DEG_real_row_numbers, ]
 
-  # Apply this threshold function
-  # cor_normal <- cor_normal[threshold_function, threshold_function]
+  # Create progress bar
+  progress_bar <- txtProgressBar(min = 0, max = nrow(cor_coexpressed), style = 3)
 
-  for(col_number in 1:ncol(cor_normal)){
+  for(row_number in 1:nrow(cor_coexpressed)){
 
-    if(col_number %in% top_DEG_real_row_numbers){
+    setTxtProgressBar(progress_bar, row_number)
 
-      cat("--- Nummer ", col_number, " --- \n")
+    for(col_number in (row_number + 1):ncol(cor_coexpressed)){
 
-      for(row_number in 1:nrow(cor_normal)){
+      cor_value <- cor_coexpressed[row_number, col_number]
 
-        cor_value <- cor_normal[row_number, col_number]
+      if((!is.na(cor_value)) && (cor_value >= 0.8)){
 
-        if((!is.na(cor_value)) && (cor_value >= 0.8)){
+        coexpressed_genes_numbers <- c(coexpressed_genes_numbers, col_number)
 
-          coexpressed_genes_numbers <- c(coexpressed_genes_numbers, row_number)
-
-        }
       }
+
     }
+
   }
+
+  close(progress_bar)
 
   coexpressed_genes_numbers <- unique(coexpressed_genes_numbers)
 
@@ -228,12 +230,12 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
 
   top_DEG <- unique(c(top_DEG_simulated, top_DEG_real))
   correspondence <- (length(overlapping_genes) * 100)/length(top_DEG)
-  cat(correspondence, " % correspondence in top expresses genes. (", length(overlapping_genes), " overlapping genes)\n")
+  cat(correspondence, " % correspondence in top expressed genes. (", length(overlapping_genes), " overlapping genes)\n")
 
   # Save correspondence to output file
   correspondence_list <- list(correspondence, length(overlapping_genes), overlapping_genes)
-  write.table(correspondence_list, file.path(output_directory, disease, paste(file_prefix, "_Correspondence.txt", sep="")), sep = "")
-
+  #write(correspondence_list, file = file.path(output_directory, disease, paste(file_prefix, "_Correspondence.txt", sep="")), sep = "")
+  capture.output(correspondence_list, file = file.path(output_directory, disease, paste(file_prefix, "_Correspondence.txt", sep="")))
 
   # Print influenced genes in top genes
   influenced_genes <- ls(genes_dictionary_from_opentargets)
@@ -244,32 +246,17 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   ##########################################################################################################
 
 
-  # Filter both matrices by top differentially expressed genes
-  simulated_matrix <- simulated_matrix[row.names(simulated_matrix) %in% top_DEG, ]
-  tcga_matrix_tumor <- tcga_matrix_tumor[row.names(tcga_matrix_tumor) %in% top_DEG, ]
+  cat("Create barplot...")
 
-  # Merge matrices
-  merged_matrix <- merge(simulated_matrix, tcga_matrix_tumor, by = "row.names", all = TRUE)
-  row.names(merged_matrix) <- merged_matrix[, 1]
-  merged_matrix <- merged_matrix[, 2:ncol(merged_matrix)]
+  # Create a barplot of gene expression rates
+  CreateBarplot(disease, output_directory, file_prefix, simulated_matrix, tcga_matrix_tumor, top_DEG, sample_number)
 
-  # Create barplot
-  average_count_simulated <- as.integer.Array(rowMeans(merged_matrix[, 1:sample_number]))
-  average_count_tcga <- as.integer.Array(rowMeans(merged_matrix[, (sample_number + 1): (2 * sample_number)]))
-  average_count <- c(average_count_simulated, average_count_tcga)
-  genes <- rownames(merged_matrix)
-  type <-c(rep("Simulated PT", length(average_count_simulated)), rep("Real PT", length(average_count_tcga)))
+  cat("DONE. \n")
 
-  data <-data.frame(genes, average_count)
-  p <- ggplot2::ggplot(data, aes(genes, average_count)) +
-    geom_bar(stat = "identity", aes(fill = type), position = "dodge") +
-    xlab("Genes") +
-    ylab("Average expression count") +
-    ggtitle("Gene expression of top differentially expressed genes") +
-    theme_bw()
 
-  print(p)
-  ggsave(file.path(output_directory, disease, paste(file_prefix, "_TopDGE_Barplot", sep="")), height = 50, width = 100, units = "cm", limitsize = FALSE)
+  ##########################################################################################################
+
+
 
   # Generate VCF file
   if(!is.null(genes_variation)){
@@ -283,12 +270,13 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   ##########################################################################################################
 
 
-
-  return(list(DEA_normal_tumor, DEA_normal_simulated))
-
-
   cat("----------------------------- \nOMICSIMULATOR DONE. \n----------------------------- \n")
 
+  # Stop TOTAL timer
+  tictoc::toc()
+
+  # Return values
+  return(list(DEA_normal_tumor, DEA_normal_simulated))
 
 }
 
