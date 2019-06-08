@@ -71,6 +71,9 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
 
   # Create input file from pathway
 
+  # Start GET INPUT timer
+  tictoc::tic("GET INPUT")
+
   cat("Create input file from pathway...")
 
   pathway_id <- GetPathwayID(disease)
@@ -90,9 +93,16 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
 
   cat("DONE. \n")
 
+  # Stop GET INPUT timer
+  tictoc::toc()
+
 
   ##########################################################################################################
 
+
+
+  # Start LOAD MATRICES timer
+  tictoc::tic("LOAD MATRICES")
 
   # Load TCGA Matrix of specified TUMOR data
   sample_type <- "Primary solid Tumor"
@@ -102,12 +112,20 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   sample_type <- "Solid Tissue Normal"
   tcga_matrix_normal <- LoadTCGAMatrix(disease, sample_type, sample_number)
 
+  # Stop LOAD MATRICES timer
+  tictoc::toc()
+
+  # Start SIMULATION + DEA timer
+  tictoc::tic("SIMULATION + DEA")
+
   # Do differential expression analysis (NORMAL + TUMOR)
   DEA_normal_tumor <- DEA(disease, sample_number, output_directory, tcga_matrix_normal, tcga_matrix_tumor, "NT_PT", file_prefix)
   top_DEG_real <- TopDEG(DEA_normal_tumor, top_DEG_number)
 
 
+
   ##########################################################################################################
+
 
 
   # Simulate tumor
@@ -122,9 +140,15 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   DEA_normal_simulated <- DEA(disease, sample_number, output_directory, tcga_matrix_normal, simulated_matrix, "NT_Simulated", file_prefix)
   top_DEG_simulated <- TopDEG(DEA_normal_simulated, top_DEG_number)
 
+  # Stop SIMULATION + DEA timer
+  tictoc::toc()
+
 
   ##########################################################################################################
 
+
+  # Start CORRELATION MATRIX timer
+  tictoc::tic("CORRELATION MATRIX")
 
   cat("Load Correlation Matrix:\n")
 
@@ -221,7 +245,16 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   # Combine coexpressed genes with top_DEG_real
   top_DEG_real <- unique(c(coexpressed_genes, top_DEG_real))
 
+  # Stop CORRELATION MATRIX timer
+  tictoc::toc()
+
+
   ##########################################################################################################
+
+
+
+  # Start CORRESPONDENCE timer
+  tictoc::tic("CORRESPONDENCE")
 
   # Combine top differentially expressed genes
 
@@ -242,9 +275,15 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   cat("Influenced genes in top genes: ", intersect(influenced_genes, top_DEG), "\n")
   cat("Influenced genes in Overlapping genes: ", intersect(influenced_genes, overlapping_genes), "\n")
 
+  # Stop CORRESPONDENCE timer
+  tictoc::toc()
+
 
   ##########################################################################################################
 
+
+  # Start BARPLOT timer
+  tictoc::tic("BARPLOT")
 
   cat("Create barplot...")
 
@@ -253,10 +292,15 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
 
   cat("DONE. \n")
 
+  # Stop BARPLOT timer
+  tictoc::toc()
+
 
   ##########################################################################################################
 
 
+  # Start VCF timer
+  tictoc::tic("VCF")
 
   # Generate VCF file
   if(!is.null(genes_variation)){
@@ -265,6 +309,9 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   else{
     cat("Note: There are no gene variations.\n")
   }
+
+  # Stop VCF timer
+  tictoc::toc()
 
 
   ##########################################################################################################
