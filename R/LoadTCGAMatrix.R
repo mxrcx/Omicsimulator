@@ -22,8 +22,6 @@ LoadTCGAMatrix <- function(disease, sample_type, sample_number){
 
     if(ncol(tcga_matrix) >= sample_number){
 
-      cat("Loaded from save file.\n")
-
       tcga_matrix <- tcga_matrix[, 1:sample_number]
 
       return(tcga_matrix)
@@ -35,8 +33,6 @@ LoadTCGAMatrix <- function(disease, sample_type, sample_number){
 
     }
   }
-
-  cat("New TCGA Query neccessary:\n")
 
   # New TCGA Query
   cancerProject <- GetCancerProject(disease)
@@ -76,8 +72,6 @@ LoadTCGAMatrix <- function(disease, sample_type, sample_number){
 
   # Save as RDS file in cache
   saveRDS(tcga_matrix, file.path("cache", disease, paste("tcga_", disease, "_", sample_type, "_sample=", sample_number, ".rds", sep="")))
-
-  cat("DONE. \n")
 
   return(tcga_matrix)
 

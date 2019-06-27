@@ -9,8 +9,6 @@
 #' @examples
 SimulateCounts <- function(count_matrix, genes_dictionary){
 
-  cat("Simulate Counts: ")
-
   # Create progress bar
   progress_bar <- txtProgressBar(min = 0, max = nrow(count_matrix), style = 3)
 

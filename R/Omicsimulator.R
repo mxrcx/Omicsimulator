@@ -74,24 +74,18 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   # Start GET INPUT timer
   tictoc::tic("GET INPUT")
 
-  cat("Create input file from pathway...")
+  cat("Create input file from pathway...\n")
 
   pathway_id <- GetPathwayID(disease)
   GenesFromPathway(pathway_id = pathway_id)
 
-  cat("DONE. \n")
-
-
   # Get input data
 
-  cat("Read input file...")
+  cat("Read input file...\n")
 
   input_data <- GetInputData()
   genes_variation <- input_data$genes_variation
   genes_dictionary <- input_data$genes_dictionary
-  print(ls(genes_dictionary))
-
-  cat("DONE. \n")
 
   # Stop GET INPUT timer
   tictoc::toc()
@@ -134,6 +128,7 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
 
   genes_dictionary_from_opentargets <- hash::hash(top_genes, rep(1, top_DEG_number))
 
+  cat("Simulate Counts: ")
   simulated_matrix <- SimulateCounts(tcga_matrix_normal, genes_dictionary_from_opentargets)
 
   # Do differential expression analysis (NORMAL + SIMULATED)
@@ -158,7 +153,7 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
 
     cat("--> Create Correlation Matrix...\n")
 
-    cor_normal <- propagate::bigcor(t(tcga_matrix_normal[1:40000, 1:sample_number]), size = 5000, fun = "cor")
+    cor_normal <- propagate::bigcor(t(tcga_matrix_normal[1:40000, 1:sample_number]), size = 10000, fun = "cor")
 
     # Save as RDS file in cache
     saveRDS(cor_normal, file.path("cache", disease, paste("cor_normal", disease, "_sample=", sample_number, ".rds", sep="")))
