@@ -121,15 +121,19 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   ##########################################################################################################
 
 
+  # Generate MAF File & get influenced genes
+  influenced_genes <- GenerateMAF()
 
   # Simulate tumor
-  efo_code <- "EFO_0000305"
-  top_genes <- GetTopGenesFromOpentargets(efo_code, top_DEG_number)
 
-  genes_dictionary_from_opentargets <- hash::hash(top_genes, rep(1, top_DEG_number))
+  #efo_code <- "EFO_0000305"
+  #top_genes <- GetTopGenesFromOpentargets(efo_code, top_DEG_number)
+  #genes_dictionary_from_opentargets <- hash::hash(top_genes, rep(1, top_DEG_number))
+
+  genes_dictionary_from_eQTL <- hash::hash(influenced_genes, rep(1, length(influenced_genes)))
 
   cat("Simulate Counts: ")
-  simulated_matrix <- SimulateCounts(tcga_matrix_normal, genes_dictionary_from_opentargets)
+  simulated_matrix <- SimulateCounts(tcga_matrix_normal, genes_dictionary_from_eQTL)
 
   # Do differential expression analysis (NORMAL + SIMULATED)
   DEA_normal_simulated <- DEA(disease, sample_number, output_directory, tcga_matrix_normal, simulated_matrix, "NT_Simulated", file_prefix)

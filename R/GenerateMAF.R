@@ -1,6 +1,6 @@
 #' Generate MAF file out of QTL data (from csv)
 #'
-#' @return
+#' @return list; Influenced Genes
 #' @export
 #'
 #' @examples
@@ -38,5 +38,8 @@ GenerateMAF <- function(){
   var.maf <- maftools::oncotate(maflite = 'sampleVars.txt', header = TRUE)
 
   print(var.maf[, 1:16])
+
+  # Return influenced genes
+  return(eQTL[5])
 
 }
