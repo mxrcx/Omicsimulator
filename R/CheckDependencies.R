@@ -22,6 +22,7 @@ CheckDependencies <- function(){
   if(!require(CePa)){install.packages("CePa")}
   if(!require(ggplot2)){install.packages("ggplot2")}
   if(!require(functional)){install.packages("functional")}
+  if(!require(rjson)){install.packages("rjson")}
 
   if (!requireNamespace("BiocManager", quietly = TRUE)){
     install.packages("BiocManager")
@@ -50,10 +51,13 @@ CheckDependencies <- function(){
     BiocManager::install("SummarizedExperiment")
   }
 
-  if(!require("hpar")){
+  if(!require(hpar)){
     BiocManager::install("hpar")
   }
-  if(!require("rols")){
+  if(!require(rols)){
     BiocManager::install("rols")
+  }
+  if(!require(maftools)){
+    BiocManager::install("maftools")
   }
 }
