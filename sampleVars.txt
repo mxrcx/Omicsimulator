@@ -1,0 +1,3 @@
+chromsome	Start	end	ref	alt	Tumor_Sample_Barcode
+chr4	55589774	55589774	A	G	fake_1
+chr15	41961117	41961117	TGGCTAA	-	fake2
