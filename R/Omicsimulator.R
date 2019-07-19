@@ -127,64 +127,12 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   ##########################################################################################################
 
 
-  # Generate MAF File & get influenced genes per sample
+  # Generate MAF File
 
-  # Calculate all standard derivations in advance
+  tumor_sample_barcodes <- colnames(tcga_matrix_normal)
 
-  sd_list <- sd(tcga_matrix_normal[1, 1:ncol(tcga_matrix_normal)])
+  maf_file <- GenerateMAF(threshold_eQTls = threshold_eQTls, tumor_sample_barcodes = tumor_sample_barcodes)
 
-  for (row in 2:nrow(tcga_matrix_normal)){
-
-    # Calculate Standard Derivation for gene (from normal matrix)
-    sd_list <- c(sd_list, sd(tcga_matrix_normal[row, 1:ncol(tcga_matrix_normal)]))
-
-  }
-
-  maf_list <- NULL
-  simulated_matrix <- tcga_matrix_normal
-
-  for(sample_number in 1:ncol(tcga_matrix_normal)){
-
-    maf_return <- GenerateMAF(threshold_eQTls)
-
-    maf_list <- c(maf_list, maf_return[0])
-
-    influenced_genes <- maf_return[1]
-
-    genes_dictionary_from_eQTL <- hash::hash(influenced_genes, rep(1, length(influenced_genes)))
-
-    # Simulate gene expression values of influenced genes
-
-    for (row in 1:nrow(simulated_matrix)){
-
-      # Manipulate expression values
-      if(rownames(simulated_matrix)[row] %in% ls(genes_dictionary_from_eQTL)){
-
-        # Get Standard Derivation for gene
-        sd <- sd_list[row]
-
-        # Increasing or decreasing Influence
-        influence <- get(toString(rownames(simulated_matrix)[row]), genes_dictionary_from_eQTL)
-
-        # Increase or decrease expression value
-        simulated_matrix[row, sample_number] <- simulated_matrix[row, sample_number] + sd * influence * 20
-
-      }
-    }
-
-  }
-
-  # Combine all MAFs to one MAF file
-
-  cattest <- file("maf_file.txt", open = "a")
-
-  for(maf in maf_list){
-
-    cat(maf, file = cattest)
-
-  }
-
-  close(cattest)
 
 
   # Simulate tumor
