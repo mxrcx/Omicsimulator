@@ -5,18 +5,19 @@
 #' @return List; List containing the DEA results of both normal-tumor and normal-simulated
 #' @export
 Omicsimulator <-
-function(disease, sample_number, top_DEG_number, output_directory, file_prefix)
-{ ... }
+  function(disease, sample_number, top_DEG_number, output_directory, file_prefix, threshold_eQTls)
+  { ... }
 #'
 #' @param disease String; name of a disease to get a KEGG pathway for
 #' @param output_directory String; directory of the output files
 #' @param top_DEG_number Integer; number of top differential expressed genes
 #' @param sample_number Integer; the number of samples which are simulated
 #' @param file_prefix String; name of the results output file
+#' @param threshold_eQTls Integer; Percentage of used eQTLs
 #'
 #' @examples
-#' Omicsimulator(disease = "Breast cancer", sample_number = 10, top_DEG_number = 100)
-Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directory, file_prefix){
+#' Omicsimulator(disease = "Breast cancer", sample_number = 10, top_DEG_number = 100, threshold_eQTls = 0.7)
+Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directory, file_prefix, threshold_eQTls){
 
   # Check for dependencies
   CheckDependencies()
@@ -61,6 +62,11 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   # Set top differential expressed genes number [in case none is given as parameter]
   if(missing(top_DEG_number)) {
     top_DEG_number <- 100
+  }
+
+  # Set threshold for eQTLs [in case none is given as parameter]
+  if(missing(threshold_eQTls)) {
+    threshold_eQTls <- 0.7
   }
 
 
@@ -121,23 +127,82 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   ##########################################################################################################
 
 
-  # Generate MAF File & get influenced genes
-  influenced_genes <- GenerateMAF()
+  # Generate MAF File & get influenced genes per sample
+
+  # Calculate all standard derivations in advance
+
+  sd_list <- sd(tcga_matrix_normal[1, 1:ncol(tcga_matrix_normal)])
+
+  for (row in 2:nrow(tcga_matrix_normal)){
+
+    # Calculate Standard Derivation for gene (from normal matrix)
+    sd_list <- c(sd_list, sd(tcga_matrix_normal[row, 1:ncol(tcga_matrix_normal)]))
+
+  }
+
+  maf_list <- NULL
+  simulated_matrix <- tcga_matrix_normal
+
+  for(sample_number in 1:ncol(tcga_matrix_normal)){
+
+    maf_return <- GenerateMAF(threshold_eQTls)
+
+    maf_list <- c(maf_list, maf_return[0])
+
+    influenced_genes <- maf_return[1]
+
+    genes_dictionary_from_eQTL <- hash::hash(influenced_genes, rep(1, length(influenced_genes)))
+
+    # Simulate gene expression values of influenced genes
+
+    for (row in 1:nrow(simulated_matrix)){
+
+      # Manipulate expression values
+      if(rownames(simulated_matrix)[row] %in% ls(genes_dictionary_from_eQTL)){
+
+        # Get Standard Derivation for gene
+        sd <- sd_list[row]
+
+        # Increasing or decreasing Influence
+        influence <- get(toString(rownames(simulated_matrix)[row]), genes_dictionary_from_eQTL)
+
+        # Increase or decrease expression value
+        simulated_matrix[row, sample_number] <- simulated_matrix[row, sample_number] + sd * influence * 20
+
+      }
+    }
+
+  }
+
+  # Combine all MAFs to one MAF file
+
+  cattest <- file("maf_file.txt", open = "a")
+
+  for(maf in maf_list){
+
+    cat(maf, file = cattest)
+
+  }
+
+  close(cattest)
+
 
   # Simulate tumor
 
-  #efo_code <- "EFO_0000305"
-  #top_genes <- GetTopGenesFromOpentargets(efo_code, top_DEG_number)
-  #genes_dictionary_from_opentargets <- hash::hash(top_genes, rep(1, top_DEG_number))
+  ### GANZ ALT ##########################################################################
+  ###efo_code <- "EFO_0000305"
+  ####top_genes <- GetTopGenesFromOpentargets(efo_code, top_DEG_number)
+  ####genes_dictionary_from_opentargets <- hash::hash(top_genes, rep(1, top_DEG_number))
 
-  genes_dictionary_from_eQTL <- hash::hash(influenced_genes, rep(1, length(influenced_genes)))
+  ### ALT #####################################################################################
+  # genes_dictionary_from_eQTL <- hash::hash(influenced_genes, rep(1, length(influenced_genes)))
 
-  cat("Simulate Counts: ")
-  simulated_matrix <- SimulateCounts(tcga_matrix_normal, genes_dictionary_from_eQTL)
+  # cat("Simulate Counts: ")
+  # simulated_matrix <- SimulateCounts(tcga_matrix_normal, genes_dictionary_from_eQTL)
 
   # Do differential expression analysis (NORMAL + SIMULATED)
-  DEA_normal_simulated <- DEA(disease, sample_number, output_directory, tcga_matrix_normal, simulated_matrix, "NT_Simulated", file_prefix)
-  top_DEG_simulated <- TopDEG(DEA_normal_simulated, top_DEG_number)
+  # DEA_normal_simulated <- DEA(disease, sample_number, output_directory, tcga_matrix_normal, simulated_matrix, "NT_Simulated", file_prefix)
+  # top_DEG_simulated <- TopDEG(DEA_normal_simulated, top_DEG_number)
 
   # Stop SIMULATION + DEA timer
   tictoc::toc()
