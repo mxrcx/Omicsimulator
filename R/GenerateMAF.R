@@ -48,29 +48,29 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes){
     eQTL_no_impact <- eQTL_no_impact[eQTL_no_impact_selection, ]
 
     # Combine eQTLs with and without impact
-    eQTL <- rbind(eQTL_with_impact, eQTL_no_impact)
+    eQTL_current <- rbind(eQTL_with_impact, eQTL_no_impact)
 
     ####TEST############
-    eQTL <- eQTL[1, ]
+    eQTL_current <- eQTL_current[1:3, ]
     ####################
 
     # Transfer eQTLs to maf format
-    chrom <- eQTL[,2]
-    start = eQTL[,3]
-    end = eQTL[,3]
-    ref = sub('\\/.', '', eQTL[,4])
-    alt = sub('.*\\/', '', eQTL[,4])
-    genes = eQTL[,5]
+    chrom <- eQTL_current[,2]
+    start = eQTL_current[,3]
+    end = eQTL_current[,3]
+    ref = sub('\\/.', '', eQTL_current[,4])
+    alt = sub('.*\\/', '', eQTL_current[,4])
+    genes = eQTL_current[,5]
 
     # Randomly select SOMATIC
-    somatic <- sample(0:1, length(chrom))
+    somatic <- sample(0:1, length(chrom), replace = TRUE)
 
     # Randomly select impact values
     sift <- NULL
     polyphen <- NULL
     impact <- NULL
 
-    for (eQTL_entry in 1:nrow(eQTL)){
+    for (eQTL_entry in 1:nrow(eQTL_current)){
 
       repeat{
 
