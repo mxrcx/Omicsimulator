@@ -7,7 +7,7 @@
 #' @export
 #'
 #' @examples
-GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes){
+GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory, file_prefix, disease){
 
   # Calculate all standard derivations in advance
 
@@ -38,6 +38,8 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes){
   # For each sample select x % of eQTLS which have impact (depending on threshold value)
   for (sample in tumor_sample_barcodes){
 
+    cat(sample, "\n")
+
     # Randomly select eQTLs with impact
     eQTL_selection <- sample(nrow(eQTL), threshold_eQTls * nrow(eQTL), replace = F)
     eQTL_with_impact <- eQTL[eQTL_selection, ]
@@ -51,7 +53,7 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes){
     eQTL_current <- rbind(eQTL_with_impact, eQTL_no_impact)
 
     ####TEST############
-    eQTL_current <- eQTL_current[1:3, ]
+    #eQTL_current <- eQTL_current[1:3, ]
     ####################
 
     # Transfer eQTLs to maf format
@@ -153,7 +155,12 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes){
 
     simulated_matrix <- tcga_matrix_normal
 
+    # Create progress bar
+    progress_bar <- txtProgressBar(min = 0, max = nrow(simulated_matrix), style = 3)
+
     for (row in 1:nrow(simulated_matrix)){
+
+      setTxtProgressBar(progress_bar, row)
 
       # Manipulate expression values
       if(rownames(simulated_matrix)[row] %in% ls(genes_dictionary_from_eQTL)){
@@ -171,11 +178,15 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes){
 
     }
 
+    close(progress_bar)
+
   }
 
-  write.table(maf_file, 'maf_file.maf', sep='\t', quote = FALSE, row.names = TRUE)
+  write.table(maf_file, file = file.path(output_directory, disease, paste(file_prefix, "_MAF_file.maf", sep="")), quote=FALSE, sep ="\t", row.names = TRUE)
 
   print(maf_file)
+
+  cat("MAF-File Einträge: ", nrow(maf_file))
 
   # Return influenced genes
   return(maf_file)

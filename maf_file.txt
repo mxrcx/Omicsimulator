@@ -1,4 +1,0 @@
-Chromsome	Start_Position	End_Position	Reference_Allele	Tumor_Seq_Allele1	Tumor_Seq_Allele2	Tumor_Sample_Barcode	Gene	SIFT	PolyPhen	SOMATIC	IMPACT
-1	chr19	22933704	22933704	A	A	G	TCGA-E9-A1RF-11A-32R-A157-07	ZNF492	deterious(0.3)	probably damaging(0.3)	0	HIGH(0.3)
-2	NA	NA	NA	NA	NA	NA	TCGA-E2-A15I-11A-32R-A137-07	NA	tolerated_low_confidence(0.3)	benign(0.3)	1	MODIFIER(0.3)
-3	NA	NA	NA	NA	NA	NA	TCGA-BH-A0DK-11A-13R-A089-07	NA	tolerated(0.3)	unknown(0.3)	1	LOW(0.3)
