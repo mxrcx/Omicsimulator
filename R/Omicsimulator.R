@@ -83,15 +83,15 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   cat("Create input file from pathway...\n")
 
   pathway_id <- GetPathwayID(disease)
-  GenesFromPathway(pathway_id = pathway_id)
+  #GenesFromPathway(pathway_id = pathway_id)
 
   # Get input data
 
   cat("Read input file...\n")
 
-  input_data <- GetInputData()
-  genes_variation <- input_data$genes_variation
-  genes_dictionary <- input_data$genes_dictionary
+  #input_data <- GetInputData()
+  #genes_variation <- input_data$genes_variation
+  #genes_dictionary <- input_data$genes_dictionary
 
   # Stop GET INPUT timer
   tictoc::toc()

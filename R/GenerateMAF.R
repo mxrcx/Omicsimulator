@@ -46,7 +46,8 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
 
     # Randomly selct eQTLS with no impact
     eQTL_no_impact <- eQTL[-(eQTL_selection), ]
-    eQTL_no_impact_selection <- sample(nrow(eQTL_no_impact), 0.3 * nrow(eQTL_no_impact), replace = F)
+    no_impact_threshold <- (0.3 * threshold_eQTls) / 0.7
+    eQTL_no_impact_selection <- sample(nrow(eQTL_no_impact), no_impact_threshold * nrow(eQTL_no_impact), replace = F)
     eQTL_no_impact <- eQTL_no_impact[eQTL_no_impact_selection, ]
 
     # Combine eQTLs with and without impact
@@ -72,21 +73,32 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
     polyphen <- NULL
     impact <- NULL
 
+    # Create progress bar for random value generation
+    progress_bar_random_values <- txtProgressBar(min = 0, max = nrow(eQTL_current), style = 3)
+
     for (eQTL_entry in 1:nrow(eQTL_current)){
+
+      setTxtProgressBar(progress_bar_random_values, eQTL_entry)
 
       repeat{
 
-        random_sift <- sample(1:4, 1)
-        random_polyphen <- sample(1:4, 1)
-        random_impact <- sample(1:4, 1)
-
         if(eQTL_entry <= length(eQTL_selection)){         # with impact
+
+          random_sift <- sample(1:4, 1)
+          random_polyphen <- sample(1:4, 1)
+          random_impact <- sample(1:4, 1)
+
           # At least one field has an impact
           if((random_sift + random_polyphen + random_impact) < 9){
             break
           }
         }
         else {                                            # no impact
+
+          random_sift <- sample(3:4, 1)
+          random_polyphen <- sample(3:4, 1)
+          random_impact <- sample(3:4, 1)
+
           # All fields no impact
           if((random_sift > 2) && (random_polyphen > 2) && (random_impact > 2)){
             break
@@ -137,6 +149,10 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
       }
     }
 
+    close(progress_bar_random_values)
+
+
+    # Build sample_maf
 
     sample_maf = data.frame(Chromsome = chrom, Start_Position = start, End_Position = end,
                             Reference_Allele = ref, Tumor_Seq_Allele1 = ref, Tumor_Seq_Allele2 = alt,
@@ -148,8 +164,16 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
 
     # Simulate influenced Genes per sample
 
-    influenced_genes <- sample_maf[,8]
+    influenced_genes <- eQTL_with_impact[,5]
+
+    print(length(influenced_genes))
+
+    influenced_genes <- unique(influenced_genes)
+
+    print(length(influenced_genes))
+
     genes_dictionary_from_eQTL <- hash::hash(influenced_genes, rep(1, length(influenced_genes)))
+
 
     # Simulate gene expression values of influenced genes
 
