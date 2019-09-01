@@ -164,13 +164,13 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
 
     # Simulate influenced Genes per sample
 
-    influenced_genes <- sample_maf[,8]
+    influenced_genes <- eQTL_with_impact[,5]
 
-    cat("Size: ", length(influenced_genes))
+    print(length(influenced_genes))
 
     influenced_genes <- unique(influenced_genes)
 
-    cat("Size: ", length(influenced_genes))
+    print(length(influenced_genes))
 
     genes_dictionary_from_eQTL <- hash::hash(influenced_genes, rep(1, length(influenced_genes)))
 
