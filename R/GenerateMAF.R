@@ -81,17 +81,23 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
 
       repeat{
 
-        random_sift <- sample(1:4, 1)
-        random_polyphen <- sample(1:4, 1)
-        random_impact <- sample(1:4, 1)
-
         if(eQTL_entry <= length(eQTL_selection)){         # with impact
+
+          random_sift <- sample(1:4, 1)
+          random_polyphen <- sample(1:4, 1)
+          random_impact <- sample(1:4, 1)
+
           # At least one field has an impact
           if((random_sift + random_polyphen + random_impact) < 9){
             break
           }
         }
         else {                                            # no impact
+
+          random_sift <- sample(3:4, 1)
+          random_polyphen <- sample(3:4, 1)
+          random_impact <- sample(3:4, 1)
+
           # All fields no impact
           if((random_sift > 2) && (random_polyphen > 2) && (random_impact > 2)){
             break
@@ -159,11 +165,11 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
 
     influenced_genes <- sample_maf[,8]
 
-    cat("Size: ", length(genes_dictionary_from_eQTL))
+    cat("Size: ", length(influenced_genes))
 
     influenced_genes <- unique(influenced_genes)
 
-    cat("Size: ", length(genes_dictionary_from_eQTL))
+    cat("Size: ", length(influenced_genes))
 
     genes_dictionary_from_eQTL <- hash::hash(influenced_genes, rep(1, length(influenced_genes)))
 
