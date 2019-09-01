@@ -46,7 +46,8 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
 
     # Randomly selct eQTLS with no impact
     eQTL_no_impact <- eQTL[-(eQTL_selection), ]
-    eQTL_no_impact_selection <- sample(nrow(eQTL_no_impact), 0.3 * nrow(eQTL_no_impact), replace = F)
+    no_impact_threshold <- (0.3 * threshold_eQTls) / 0.7
+    eQTL_no_impact_selection <- sample(nrow(eQTL_no_impact), no_impact_threshold * nrow(eQTL_no_impact), replace = F)
     eQTL_no_impact <- eQTL_no_impact[eQTL_no_impact_selection, ]
 
     # Combine eQTLs with and without impact
