@@ -72,7 +72,12 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
     polyphen <- NULL
     impact <- NULL
 
+    # Create progress bar for random value generation
+    progress_bar_random_values <- txtProgressBar(min = 0, max = nrow(eQTL_current), style = 3)
+
     for (eQTL_entry in 1:nrow(eQTL_current)){
+
+      setTxtProgressBar(progress_bar_random_values, eQTL_entry)
 
       repeat{
 
@@ -137,6 +142,10 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
       }
     }
 
+    close(progress_bar_random_values)
+
+
+    # Build sample_maf
 
     sample_maf = data.frame(Chromsome = chrom, Start_Position = start, End_Position = end,
                             Reference_Allele = ref, Tumor_Seq_Allele1 = ref, Tumor_Seq_Allele2 = alt,
@@ -149,7 +158,15 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
     # Simulate influenced Genes per sample
 
     influenced_genes <- sample_maf[,8]
+
+    cat("Size: ", length(genes_dictionary_from_eQTL))
+
+    influenced_genes <- unique(influenced_genes)
+
+    cat("Size: ", length(genes_dictionary_from_eQTL))
+
     genes_dictionary_from_eQTL <- hash::hash(influenced_genes, rep(1, length(influenced_genes)))
+
 
     # Simulate gene expression values of influenced genes
 
