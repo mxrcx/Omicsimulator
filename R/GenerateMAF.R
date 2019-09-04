@@ -180,11 +180,11 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
     simulated_matrix <- tcga_matrix_normal
 
     # Create progress bar
-    progress_bar <- txtProgressBar(min = 0, max = nrow(simulated_matrix), style = 3)
+    #progress_bar <- txtProgressBar(min = 0, max = nrow(simulated_matrix), style = 3)
 
-    for (row in 1:nrow(simulated_matrix)){
+    simulate_gene_expression <- function (row){
 
-      setTxtProgressBar(progress_bar, row)
+      #setTxtProgressBar(progress_bar, row)
 
       # Manipulate expression values
       if(rownames(simulated_matrix)[row] %in% ls(genes_dictionary_from_eQTL)){
@@ -202,7 +202,13 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
 
     }
 
-    close(progress_bar)
+    library(parallel)
+
+    system.time({
+      results <- parallel::mclapply(1:nrow(simulated_matrix), simulate_gene_expression, mc.cores = detectCores())
+    })
+
+    #close(progress_bar)
 
   }
 
