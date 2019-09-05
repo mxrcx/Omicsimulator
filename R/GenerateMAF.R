@@ -73,12 +73,8 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
     polyphen <- NULL
     impact <- NULL
 
-    # Create progress bar for random value generation
-    progress_bar_random_values <- txtProgressBar(min = 0, max = nrow(eQTL_current), style = 3)
-
-    for (eQTL_entry in 1:nrow(eQTL_current)){
-
-      setTxtProgressBar(progress_bar_random_values, eQTL_entry)
+    # Random value generation
+    for(eQTL_entry in 1:nrow(eQTL_current)){
 
       repeat{
 
@@ -104,7 +100,9 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
             break
           }
         }
+
       }
+
 
       ######### SIFT #########
       if (random_sift == 1){
@@ -149,9 +147,6 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
       }
     }
 
-    close(progress_bar_random_values)
-
-
     # Build sample_maf
 
     sample_maf = data.frame(Chromsome = chrom, Start_Position = start, End_Position = end,
@@ -165,8 +160,6 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
     # Simulate influenced Genes per sample
 
     influenced_genes <- eQTL_with_impact[,5]
-
-    print(length(influenced_genes))
 
     influenced_genes <- unique(influenced_genes)
 
@@ -204,9 +197,9 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
 
     library(parallel)
 
-    system.time({
+    print(system.time({
       results <- parallel::mclapply(1:nrow(simulated_matrix), simulate_gene_expression, mc.cores = detectCores())
-    })
+    }))
 
     #close(progress_bar)
 
