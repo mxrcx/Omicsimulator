@@ -205,7 +205,6 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   coexpressed_genes_numbers <- NULL
   threshold <- 0.8
 
-
   # Get only relevant rows
   cor_coexpressed <- cor_normal[top_DEG_real_row_numbers, ]
 
