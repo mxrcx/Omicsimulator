@@ -3,11 +3,13 @@
 #' @param threshold_eQTls Int; Threshold of the number of eQTLs used
 #' @param tumor_sample_barcodes
 #'
-#' @return list; Influenced Genes
+#' @return Matrix; Simulated Matrix
 #' @export
 #'
 #' @examples
 GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory, file_prefix, disease, tcga_matrix_normal, tcga_matrix_tumor){
+
+  simulated_matrix <- tcga_matrix_normal
 
   # Calculate all standard derivations in advance
 
@@ -68,10 +70,6 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
 
     # Combine eQTLs with and without impact
     eQTL_current <- rbind(eQTL_with_impact, eQTL_no_impact)
-
-    ####TEST############
-    #eQTL_current <- eQTL_current[1:3, ]
-    ####################
 
     # Transfer eQTLs to maf format
     chrom <- eQTL_current[,2]
@@ -186,18 +184,20 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
 
     # Simulate gene expression values of influenced genes
 
-    simulated_matrix <- tcga_matrix_normal
-
     # Create progress bar
     #progress_bar <- txtProgressBar(min = 0, max = nrow(simulated_matrix), style = 3)
 
     ####### NEWWWWWW
     wanted_rows = which(rownames(simulated_matrix) %in% ls(genes_dictionary_from_eQTL))
-    print(simulated_matrix[wanted_rows[1], 1])
+
     print(system.time({
       simulated_matrix[wanted_rows, which(tumor_sample_barcodes == sample)] <- ((simulated_matrix[wanted_rows, which(tumor_sample_barcodes == sample)] - mean_list_normal[wanted_rows])/sd_list_normal[wanted_rows]*sd_list_tumor[wanted_rows])+mean_list_tumor[wanted_rows]
     }))
-    print(simulated_matrix[wanted_rows[1]], 1)
+
+    print(simulated_matrix)
+
+    simulated_matrix <- tcga_matrix_normal
+
 
     simulate_gene_expression <- function (row){
 
@@ -224,11 +224,13 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
 
     }
 
-    library(parallel)
+    #library(parallel)
 
     print(system.time({
-      results <- parallel::mclapply(1:nrow(simulated_matrix), simulate_gene_expression, mc.cores = detectCores())
+     results <- parallel::mclapply(1:nrow(simulated_matrix), simulate_gene_expression, mc.cores = detectCores())
     }))
+
+    print(simulated_matrix)
 
     #close(progress_bar)
 
@@ -240,7 +242,7 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
 
   cat("MAF-File Einträge: ", nrow(maf_file))
 
-  # Return influenced genes
-  return(maf_file)
+  # Return simulated matrix
+  return(simulated_matrix)
 
 }

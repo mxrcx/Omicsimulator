@@ -75,34 +75,6 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
 
   cat("----------------------------- \nOMICSIMULATOR START. \n----------------------------- \n")
 
-  # Create input file from pathway
-
-  # Start GET INPUT timer
-  tictoc::tic("GET INPUT")
-
-  cat("Create input file from pathway...\n")
-
-  pathway_id <- GetPathwayID(disease)
-  #GenesFromPathway(pathway_id = pathway_id)
-
-  # Get input data
-
-  cat("Read input file...\n")
-
-  #input_data <- GetInputData()
-  #genes_variation <- input_data$genes_variation
-  #genes_dictionary <- input_data$genes_dictionary
-
-  # Stop GET INPUT timer
-  tictoc::toc()
-
-
-  ##########################################################################################################
-
-
-
-  # Start LOAD MATRICES timer
-  tictoc::tic("LOAD MATRICES")
 
   # Load TCGA Matrix of specified TUMOR data
   sample_type <- "Primary solid Tumor"
@@ -112,160 +84,21 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   sample_type <- "Solid Tissue Normal"
   tcga_matrix_normal <- LoadTCGAMatrix(disease, sample_type, sample_number)
 
-  # Stop LOAD MATRICES timer
-  tictoc::toc()
-
-  # Start SIMULATION + DEA timer
-  tictoc::tic("SIMULATION + DEA")
-
   # Do differential expression analysis (NORMAL + TUMOR)
   DEA_normal_tumor <- DEA(disease, sample_number, output_directory, tcga_matrix_normal, tcga_matrix_tumor, "NT_PT", file_prefix)
   top_DEG_real <- TopDEG(DEA_normal_tumor, top_DEG_number)
 
-
-
-  ##########################################################################################################
-
-
   # Generate MAF File
-
   tumor_sample_barcodes <- colnames(tcga_matrix_normal)
-
-  maf_file <- GenerateMAF(threshold_eQTls = threshold_eQTls, tumor_sample_barcodes = tumor_sample_barcodes, output_directory = output_directory, file_prefix = file_prefix, disease = disease, tcga_matrix_normal = tcga_matrix_normal, tcga_matrix_tumor = tcga_matrix_tumor)
-
-
-
-  # Simulate tumor
-
-  ### GANZ ALT ##########################################################################
-  ###efo_code <- "EFO_0000305"
-  ####top_genes <- GetTopGenesFromOpentargets(efo_code, top_DEG_number)
-  ####genes_dictionary_from_opentargets <- hash::hash(top_genes, rep(1, top_DEG_number))
-
-  ### ALT #####################################################################################
-  # genes_dictionary_from_eQTL <- hash::hash(influenced_genes, rep(1, length(influenced_genes)))
-
-  # cat("Simulate Counts: ")
-  # simulated_matrix <- SimulateCounts(tcga_matrix_normal, genes_dictionary_from_eQTL)
+  simulated_matrix <- GenerateMAF(threshold_eQTls = threshold_eQTls, tumor_sample_barcodes = tumor_sample_barcodes, output_directory = output_directory, file_prefix = file_prefix, disease = disease, tcga_matrix_normal = tcga_matrix_normal, tcga_matrix_tumor = tcga_matrix_tumor)
 
   # Do differential expression analysis (NORMAL + SIMULATED)
-  # DEA_normal_simulated <- DEA(disease, sample_number, output_directory, tcga_matrix_normal, simulated_matrix, "NT_Simulated", file_prefix)
-  # top_DEG_simulated <- TopDEG(DEA_normal_simulated, top_DEG_number)
-
-  # Stop SIMULATION + DEA timer
-  tictoc::toc()
+  DEA_normal_simulated <- DEA(disease, sample_number, output_directory, tcga_matrix_normal, simulated_matrix, "NT_Simulated", file_prefix)
+  top_DEG_simulated <- TopDEG(DEA_normal_simulated, top_DEG_number)
 
 
   ##########################################################################################################
 
-
-  # Start CORRELATION MATRIX timer
-  tictoc::tic("CORRELATION MATRIX")
-
-  cat("Load Correlation Matrix:\n")
-
-  # Build correlation matrix to find coexpressed genes
-
-  if(!file.exists(file.path("cache", disease, paste("cor_normal", disease, "_sample=", sample_number, ".rds", sep="")))){
-
-    cat("--> Create Correlation Matrix...\n")
-
-    cor_normal <- propagate::bigcor(t(tcga_matrix_normal[1:40000, 1:sample_number]), size = 10000, fun = "cor")
-
-    # Save as RDS file in cache
-    saveRDS(cor_normal, file.path("cache", disease, paste("cor_normal", disease, "_sample=", sample_number, ".rds", sep="")))
-
-    cat("--> DONE. \n")
-  }
-  else{
-
-    cor_normal <- readRDS(file.path("cache", disease, paste("cor_normal", disease, "_sample=", sample_number, ".rds", sep="")))
-
-    cat("Loaded from save file.\n")
-  }
-
-  cat("Check for coexpressed genes... \n")
-
-  # Find row numbers of top_DEG_real
-  top_DEG_real_row_numbers <- NULL
-
-  for(row_number in 1:nrow(tcga_matrix_normal[1:40000, 1:sample_number])){
-
-    if(is.element(rownames(tcga_matrix_normal)[row_number], top_DEG_real)){
-
-      top_DEG_real_row_numbers <- c(top_DEG_real_row_numbers, row_number)
-
-    }
-  }
-
-  cat("DONE. \n")
-
-  # Check for coexpressed genes
-  cat("Get coexpressed genes numbers... \n")
-  coexpressed_genes_numbers <- NULL
-  threshold <- 0.8
-
-  # Get only relevant rows
-  cor_coexpressed <- cor_normal[top_DEG_real_row_numbers, ]
-
-  # Create progress bar
-  progress_bar <- txtProgressBar(min = 0, max = nrow(cor_coexpressed), style = 3)
-
-  for(row_number in 1:nrow(cor_coexpressed)){
-
-    setTxtProgressBar(progress_bar, row_number)
-
-    for(col_number in (row_number + 1):ncol(cor_coexpressed)){
-
-      cor_value <- cor_coexpressed[row_number, col_number]
-
-      if((!is.na(cor_value)) && (cor_value >= 0.8)){
-
-        coexpressed_genes_numbers <- c(coexpressed_genes_numbers, col_number)
-
-      }
-
-    }
-
-  }
-
-  close(progress_bar)
-
-  coexpressed_genes_numbers <- unique(coexpressed_genes_numbers)
-
-
-  # Get coexpressed genes symbol
-  cat("Get coexpressed genes symbol... \n")
-
-  coexpressed_genes <- NULL
-  rownames_tcga_matrix_normal <- rownames(tcga_matrix_normal)
-
-  for(row_number in 1:length(rownames_tcga_matrix_normal)){
-
-    if(is.element(row_number, coexpressed_genes_numbers)){
-
-      coexpressed_genes <- c(coexpressed_genes, rownames_tcga_matrix_normal[row_number])
-
-    }
-  }
-
-  cat("Total coexpressed: ", length(coexpressed_genes), " \n")
-
-  cat("DONE. \n")
-
-  # Combine coexpressed genes with top_DEG_real
-  top_DEG_real <- unique(c(coexpressed_genes, top_DEG_real))
-
-  # Stop CORRELATION MATRIX timer
-  tictoc::toc()
-
-
-  ##########################################################################################################
-
-
-
-  # Start CORRESPONDENCE timer
-  tictoc::tic("CORRESPONDENCE")
 
   # Combine top differentially expressed genes
 
@@ -286,15 +119,9 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   cat("Influenced genes in top genes: ", intersect(influenced_genes, top_DEG), "\n")
   cat("Influenced genes in Overlapping genes: ", intersect(influenced_genes, overlapping_genes), "\n")
 
-  # Stop CORRESPONDENCE timer
-  tictoc::toc()
-
 
   ##########################################################################################################
 
-
-  # Start BARPLOT timer
-  tictoc::tic("BARPLOT")
 
   cat("Create barplot...")
 
@@ -303,15 +130,9 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
 
   cat("DONE. \n")
 
-  # Stop BARPLOT timer
-  tictoc::toc()
-
 
   ##########################################################################################################
 
-
-  # Start VCF timer
-  tictoc::tic("VCF")
 
   # Generate VCF file
   if(!is.null(genes_variation)){
@@ -320,9 +141,6 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   else{
     cat("Note: There are no gene variations.\n")
   }
-
-  # Stop VCF timer
-  tictoc::toc()
 
 
   ##########################################################################################################
