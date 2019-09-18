@@ -131,7 +131,7 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
 
   tumor_sample_barcodes <- colnames(tcga_matrix_normal)
 
-  maf_file <- GenerateMAF(threshold_eQTls = threshold_eQTls, tumor_sample_barcodes = tumor_sample_barcodes, output_directory = output_directory, file_prefix = file_prefix, disease = disease)
+  maf_file <- GenerateMAF(threshold_eQTls = threshold_eQTls, tumor_sample_barcodes = tumor_sample_barcodes, output_directory = output_directory, file_prefix = file_prefix, disease = disease, tcga_matrix_normal = tcga_matrix_normal, tcga_matrix_tumor = tcga_matrix_tumor)
 
 
 

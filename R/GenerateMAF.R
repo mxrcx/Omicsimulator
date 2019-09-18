@@ -7,14 +7,14 @@
 #' @export
 #'
 #' @examples
-GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory, file_prefix, disease){
+GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory, file_prefix, disease, tcga_matrix_normal, tcga_matrix_tumor){
 
   # Calculate all standard derivations in advance
 
   sd_list_tumor <- sd(tcga_matrix_tumor[1, 1:ncol(tcga_matrix_tumor)])
   for (row in 2:nrow(tcga_matrix_tumor)){
     # Calculate Standard Derivation for gene (from tumor matrix)
-    sd_list_tumor <- c(sd_list_normal, sd(tcga_matrix_tumor[row, 1:ncol(tcga_matrix_tumor)]))
+    sd_list_tumor <- c(sd_list_tumor, sd(tcga_matrix_tumor[row, 1:ncol(tcga_matrix_tumor)]))
   }
 
   mean_list_tumor <- mean(tcga_matrix_tumor[1, 1:ncol(tcga_matrix_tumor)])
@@ -22,20 +22,20 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
     # Calculate Mean for gene (from tunor matrix)
     mean_list_tumor <- c(mean_list_tumor, mean(tcga_matrix_tumor[row, 1:ncol(tcga_matrix_tumor)]))
   }
-  
+
   sd_list_normal <- sd(tcga_matrix_normal[1, 1:ncol(tcga_matrix_normal)])
   for (row in 2:nrow(tcga_matrix_normal)){
     # Calculate Standard Derivation for gene (from normal matrix)
     sd_list_normal <- c(sd_list_normal, sd(tcga_matrix_normal[row, 1:ncol(tcga_matrix_normal)]))
   }
-  
+
   mean_list_normal <- mean(tcga_matrix_normal[1, 1:ncol(tcga_matrix_normal)])
   for (row in 2:nrow(tcga_matrix_normal)){
     # Calculate Mean for gene (from normal matrix)
     mean_list_normal <- c(mean_list_normal, mean(tcga_matrix_normal[row, 1:ncol(tcga_matrix_normal)]))
   }
-      
-  
+
+
   # Create maf
   maf_file <- NULL
 
@@ -191,6 +191,14 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
     # Create progress bar
     #progress_bar <- txtProgressBar(min = 0, max = nrow(simulated_matrix), style = 3)
 
+    ####### NEWWWWWW
+    wanted_rows = which(rownames(simulated_matrix) %in% ls(genes_dictionary_from_eQTL))
+    print(simulated_matrix[wanted_rows[1], 1])
+    print(system.time({
+      simulated_matrix[wanted_rows, which(tumor_sample_barcodes == sample)] <- ((simulated_matrix[wanted_rows, which(tumor_sample_barcodes == sample)] - mean_list_normal[wanted_rows])/sd_list_normal[wanted_rows]*sd_list_tumor[wanted_rows])+mean_list_tumor[wanted_rows]
+    }))
+    print(simulated_matrix[wanted_rows[1]], 1)
+
     simulate_gene_expression <- function (row){
 
       #setTxtProgressBar(progress_bar, row)
@@ -201,8 +209,8 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
         # Get Standard Derivation for genes
         sd_normal <- sd_list_normal[row]
         sd_tumor <- sd_list_tumor[row]
-        
-        # Get Means 
+
+        # Get Means
         mean_normal <- mean_list_normal[row]
         mean_tumor <- mean_list_tumor[row]
 
@@ -211,7 +219,7 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
 
         # Increase or decrease expression value
         simulated_matrix[row, which(tumor_sample_barcodes == sample)] <- ((simulated_matrix[row, which(tumor_sample_barcodes == sample)] - mean_normal)/sd_normal*sd_tumor)+mean_tumor
-       
+
       }
 
     }
