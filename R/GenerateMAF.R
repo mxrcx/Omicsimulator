@@ -11,6 +11,7 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
 
   simulated_matrix <- tcga_matrix_normal
 
+  cat("Calculate all standard derivations in advance...\n")
   # Calculate all standard derivations in advance
 
   sd_list_tumor <- sd(tcga_matrix_tumor[1, 1:ncol(tcga_matrix_tumor)])
@@ -37,6 +38,7 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
     mean_list_normal <- c(mean_list_normal, mean(tcga_matrix_normal[row, 1:ncol(tcga_matrix_normal)]))
   }
 
+  cat("Prepare MAF-Files...\n")
 
   # Create maf
   maf_file <- NULL
@@ -56,7 +58,7 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
   # For each sample select x % of eQTLS which have impact (depending on threshold value)
   for (sample in tumor_sample_barcodes){
 
-    cat(sample, "\n")
+    cat(sample, ":\n", "Generate random values...\n")
 
     # Randomly select eQTLs with impact
     eQTL_selection <- sample(nrow(eQTL), threshold_eQTls * nrow(eQTL), replace = F)
@@ -83,86 +85,49 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
     somatic <- sample(0:1, length(chrom), replace = TRUE)
 
     # Randomly select impact values
-    sift <- NULL
-    polyphen <- NULL
-    impact <- NULL
+    sift <- vector(length = nrow(eQTL_current))
+    polyphen <- vector(length = nrow(eQTL_current))
+    impact <- vector(length = nrow(eQTL_current))
 
     # Random value generation
     for(eQTL_entry in 1:nrow(eQTL_current)){
 
-      repeat{
+      if(eQTL_entry <= length(eQTL_selection)){         # with impact
+        # At least one of the three fields has an impact (Level 1 or 2)
+        random_value_influence <- sample(1:2, 1, replace = TRUE)
+        random_values_maybe_influence <- sample(1:4, 2, replace = TRUE)
 
-        if(eQTL_entry <= length(eQTL_selection)){         # with impact
-
-          random_sift <- sample(1:4, 1)
-          random_polyphen <- sample(1:4, 1)
-          random_impact <- sample(1:4, 1)
-
-          # At least one field has an impact
-          if((random_sift + random_polyphen + random_impact) < 9){
-            break
-          }
-        }
-        else {                                            # no impact
-
-          random_sift <- sample(3:4, 1)
-          random_polyphen <- sample(3:4, 1)
-          random_impact <- sample(3:4, 1)
-
-          # All fields no impact
-          if((random_sift > 2) && (random_polyphen > 2) && (random_impact > 2)){
-            break
-          }
-        }
-
+        #Randomize vector
+        random_values <- sample(c(random_value_influence, random_values_maybe_influence))
+      }
+      else {                                            # no impact
+        # All fields no impact (Level 3 or 4)
+        random_values <- sample(3:4, 3, replace = TRUE)
       }
 
+      sift[eQTL_entry] <- random_values[1]
+      polyphen[eQTL_entry] <- random_values[2]
+      impact[eQTL_entry] <- random_values[3]
 
-      ######### SIFT #########
-      if (random_sift == 1){
-        sift <- c(sift, "deterious(0.3)")
-      }
-      if (random_sift == 2){
-        sift <- c(sift, "deterious_low_confidence(0.3)")
-      }
-      if (random_sift == 3){
-        sift <- c(sift, "tolerated_low_confidence(0.3)")
-      }
-      if (random_sift == 4){
-        sift <- c(sift, "tolerated(0.3)")
-      }
-
-      ######### PolyPhen #########
-      if (random_polyphen == 1){
-        polyphen <- c(polyphen, "probably damaging(0.3)")
-      }
-      if (random_polyphen == 2){
-        polyphen <- c(polyphen, "possibly damaging(0.3)")
-      }
-      if (random_polyphen == 3){
-        polyphen <- c(polyphen, "benign(0.3)")
-      }
-      if (random_polyphen == 4){
-        polyphen <- c(polyphen, "unknown(0.3)")
-      }
-
-      ######### IMPACT #########
-      if (random_impact == 1){
-        impact <- c(impact, "HIGH(0.3)")
-      }
-      if (random_impact == 2){
-        impact <- c(impact, "MODERATE(0.3)")
-      }
-      if (random_impact == 3){
-        impact <- c(impact, "LOW(0.3)")
-      }
-      if (random_impact == 4){
-        impact <- c(impact, "MODIFIER(0.3)")
-      }
     }
 
-    # Build sample_maf
+    # SIFT
+    sift <- replace(sift, sift == 1, "deterious(0.3)")
+    sift <- replace(sift, sift == 2, "deterious_low_confidence(0.3)")
+    sift <- replace(sift, sift == 3, "tolerated_low_confidence(0.3)")
+    sift <- replace(sift, sift == 4, "tolerated(0.3)")
+    # PolyPhen
+    polyphen <- replace(polyphen, polyphen == 1, "probably damaging(0.3)")
+    polyphen <- replace(polyphen, polyphen == 2, "possibly damaging(0.3)")
+    polyphen <- replace(polyphen, polyphen == 3, "benign(0.3)")
+    polyphen <- replace(polyphen, polyphen == 4, "unknown(0.3)")
+    # IMPACT
+    impact <- replace(impact, impact == 1, "HIGH(0.3)")
+    impact <- replace(impact, impact == 2, "MODERATE(0.3)")
+    impact <- replace(impact, impact == 3, "LOW(0.3)")
+    impact <- replace(impact, impact == 4, "MODIFIER(0.3)")
 
+    # Build sample_maf
     sample_maf = data.frame(Chromsome = chrom, Start_Position = start, End_Position = end,
                             Reference_Allele = ref, Tumor_Seq_Allele1 = ref, Tumor_Seq_Allele2 = alt,
                             Tumor_Sample_Barcode = sample, Gene = genes, SIFT = sift, PolyPhen = polyphen,
@@ -172,13 +137,8 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
 
 
     # Simulate influenced Genes per sample
-
     influenced_genes <- eQTL_with_impact[,5]
-
     influenced_genes <- unique(influenced_genes)
-
-    print(length(influenced_genes))
-
     genes_dictionary_from_eQTL <- hash::hash(influenced_genes, rep(1, length(influenced_genes)))
 
 
@@ -194,9 +154,9 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
       simulated_matrix[wanted_rows, which(tumor_sample_barcodes == sample)] <- ((simulated_matrix[wanted_rows, which(tumor_sample_barcodes == sample)] - mean_list_normal[wanted_rows])/sd_list_normal[wanted_rows]*sd_list_tumor[wanted_rows])+mean_list_tumor[wanted_rows]
     }))
 
-    print(simulated_matrix)
+    #print(simulated_matrix)
 
-    simulated_matrix <- tcga_matrix_normal
+    #simulated_matrix <- tcga_matrix_normal
 
 
     simulate_gene_expression <- function (row){
@@ -226,11 +186,9 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
 
     #library(parallel)
 
-    print(system.time({
-     results <- parallel::mclapply(1:nrow(simulated_matrix), simulate_gene_expression, mc.cores = detectCores())
-    }))
-
-    print(simulated_matrix)
+    #print(system.time({
+     #results <- parallel::mclapply(1:nrow(simulated_matrix), simulate_gene_expression, mc.cores = detectCores())
+    #}))
 
     #close(progress_bar)
 
@@ -238,9 +196,7 @@ GenerateMAF <- function(threshold_eQTls, tumor_sample_barcodes, output_directory
 
   write.table(maf_file, file = file.path(output_directory, disease, paste(file_prefix, "_MAF_file.maf", sep="")), quote=FALSE, sep ="\t", row.names = TRUE)
 
-  print(maf_file)
-
-  cat("MAF-File Einträge: ", nrow(maf_file))
+  cat("MAF-File Einträge: ", nrow(maf_file), "\n")
 
   # Return simulated matrix
   return(simulated_matrix)

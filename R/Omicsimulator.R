@@ -115,9 +115,9 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
   capture.output(correspondence_list, file = file.path(output_directory, disease, paste(file_prefix, "_Correspondence.txt", sep="")))
 
   # Print influenced genes in top genes
-  influenced_genes <- ls(genes_dictionary_from_opentargets)
-  cat("Influenced genes in top genes: ", intersect(influenced_genes, top_DEG), "\n")
-  cat("Influenced genes in Overlapping genes: ", intersect(influenced_genes, overlapping_genes), "\n")
+  #influenced_genes <- ls(genes_dictionary_from_opentargets)
+  #cat("Influenced genes in top genes: ", intersect(influenced_genes, top_DEG), "\n")
+  #cat("Influenced genes in Overlapping genes: ", intersect(influenced_genes, overlapping_genes), "\n")
 
 
   ##########################################################################################################
@@ -133,6 +133,7 @@ Omicsimulator <- function(disease, sample_number, top_DEG_number, output_directo
 
   ##########################################################################################################
 
+  genes_variation <- NULL
 
   # Generate VCF file
   if(!is.null(genes_variation)){
