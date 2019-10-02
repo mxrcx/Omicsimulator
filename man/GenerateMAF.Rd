@@ -4,7 +4,16 @@
 \alias{GenerateMAF}
 \title{Generate MAF file out of QTL data (from csv)}
 \usage{
-GenerateMAF()
+GenerateMAF(threshold_eQTls, tumor_sample_barcodes, output_directory,
+  file_prefix, disease, tcga_matrix_normal, tcga_matrix_tumor)
+}
+\arguments{
+\item{threshold_eQTls}{Int; Threshold of the number of eQTLs used}
+
+\item{tumor_sample_barcodes}{}
+}
+\value{
+Matrix; Simulated Matrix
 }
 \description{
 Generate MAF file out of QTL data (from csv)

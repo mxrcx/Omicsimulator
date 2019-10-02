@@ -5,10 +5,10 @@
 \title{Main function which calls all relevant to simulate the influence of variations on gene expression}
 \usage{
 Omicsimulator(disease, sample_number, top_DEG_number, output_directory,
-  file_prefix)
+  file_prefix, threshold_eQTls)
 
 Omicsimulator(disease, sample_number, top_DEG_number, output_directory,
-  file_prefix)
+  file_prefix, threshold_eQTls)
 }
 \arguments{
 \item{disease}{String; name of a disease to get a KEGG pathway for}
@@ -20,6 +20,8 @@ Omicsimulator(disease, sample_number, top_DEG_number, output_directory,
 \item{output_directory}{String; directory of the output files}
 
 \item{file_prefix}{String; name of the results output file}
+
+\item{threshold_eQTls}{Integer; Percentage of used eQTLs}
 }
 \value{
 List; List containing the DEA results of both normal-tumor and normal-simulated
@@ -28,5 +30,5 @@ List; List containing the DEA results of both normal-tumor and normal-simulated
 Main function which calls all relevant to simulate the influence of variations on gene expression
 }
 \examples{
-Omicsimulator(disease = "Breast cancer", sample_number = 10, top_DEG_number = 100)
+Omicsimulator(disease = "Breast cancer", sample_number = 10, top_DEG_number = 100, threshold_eQTls = 0.7)
 }
